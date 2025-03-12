@@ -74,3 +74,4 @@ history = model.fit(
 
 # Save the trained model.
 model.save('waste_classifier.h5')
+print("End the train")
