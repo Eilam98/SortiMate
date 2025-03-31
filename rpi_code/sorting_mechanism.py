@@ -72,5 +72,5 @@ class SortingMechanism:
     
     def cleanup(self) -> None:
         """Clean up GPIO resources for both servos."""
-        self.rotation_servo.cleanup()
+        #TO ADD: self.rotation_servo.cleanup()
         self.gate_servo.cleanup() 

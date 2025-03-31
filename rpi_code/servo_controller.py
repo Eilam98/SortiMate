@@ -71,5 +71,6 @@ class ServoController:
     
     def cleanup(self) -> None:
         """Clean up GPIO resources."""
-        self.pwm.stop()
+        if self.pwm is not None:  # Check if pwm is initialized
+            self.pwm.stop()
         GPIO.cleanup() 
