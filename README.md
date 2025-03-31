@@ -1,4 +1,4 @@
-# SortiMate: Smart Automatic Recycling Sorting Bin Project
+# SortiMate: Smart Automatic Recycling Sorting Bin
 
 <img align="right" src="https://github.com/user-attachments/assets/4cde066f-5cae-4f77-9060-d1b6404cc600" alt="Logo" width="180" />
 
