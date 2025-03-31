@@ -4,6 +4,7 @@
 
 Welcome to the SortiMate project repository! This README outlines our project roadmap, team responsibilities, and key activities we will be executing to bring our smart recycling solution to life.
 
+
 ## Project Overview
 
 SortiMate is our innovative solution to improve recycling efficiency by automatically sorting bottles, cans, and other recyclable waste. By combining sensor-based detection, machine learning, and real-time web monitoring, our project aims to reduce contamination, increase recycling participation, and promote sustainable practices in both public spaces and homes.
