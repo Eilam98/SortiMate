@@ -1,8 +1,8 @@
 # SortiMate: Smart Automatic Recycling Sorting Bin Project
 
 Welcome to the SortiMate project repository!                                                                                                         
-![logo_demo-removebg](https://github.com/user-attachments/assets/4cde066f-5cae-4f77-9060-d1b6404cc600) 
 This README outlines our project roadmap, team responsibilities, and key activities we will be executing to bring our smart recycling solution to life. 
+![logo_demo-removebg](https://github.com/user-attachments/assets/4cde066f-5cae-4f77-9060-d1b6404cc600) 
 
 ## Project Overview
 
