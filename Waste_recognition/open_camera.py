@@ -1,15 +1,3 @@
-import cv2
-
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-ESC_KEY = 27
-while True:
-    success, frame = cap.read()
-    if success:
-        cv2.imshow("capture image", frame)
-        if cv2.waitKey(1) == ESC_KEY:  # esc button is being pressed to quit filming
-            break
-
-cv2.destroyAllWindows()
+version https://git-lfs.github.com/spec/v1
+oid sha256:849afe2ab262692a05afe15276f3f774492423097c31ae77b43396d4d5e7f903
+size 362

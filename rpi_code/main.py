@@ -1,18 +1,3 @@
-import time
-from sorting_mechanism import SortingMechanism, WasteType
-
-def main():
-    try:
-        sorter = SortingMechanism(rotation_pin=17, gate_pin=27) # GPIO17 for rotation servo, GPIO27 for gate servo
-        print("Smart Recycling Bin initialized...")
-        
-    except KeyboardInterrupt:
-        print("\nProgram interrupted by user")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        # Clean up GPIO resources
-        sorter.cleanup()
-
-if __name__ == "__main__":
-    main()
+version https://git-lfs.github.com/spec/v1
+oid sha256:526ed457b0e39f2ab0145e10571a82af5b70b6c8d80c8a0f33ef5dbfe9129298
+size 523
