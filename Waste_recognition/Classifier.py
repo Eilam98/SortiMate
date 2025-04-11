@@ -1,11 +1,10 @@
 import gradio as gr
-import numpy as np
 from transformers import AutoImageProcessor
 from transformers import SiglipForImageClassification
 from transformers.image_utils import load_image
 from PIL import Image
 import torch
-import cv2
+import numpy as np
 
 # Load model and processor
 model_name = "prithivMLmods/Augmented-Waste-Classifier-SigLIP2"
@@ -19,19 +18,21 @@ processor = AutoImageProcessor.from_pretrained(model_name)
 
 def waste_classification(image):
     """Predicts waste classification for an image."""
-
-    # If the input is a numpy array, convert it from BGR (OpenCV) to RGB and wrap it as a PIL image.
+    print("im here in the classifier")
     if isinstance(image, np.ndarray):
-        image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        pil_image = Image.fromarray(image)
     else:
-        image = Image.open(image).convert("RGB")
+        pil_image = Image.open(image).convert("RGB")
 
-    inputs = processor(images=image, return_tensors="pt")
+    print("im here in the middle of the classifier")
+    inputs = processor(images=pil_image, return_tensors="pt")
 
     with torch.no_grad():
         outputs = model(**inputs)
         logits = outputs.logits
         probs = torch.nn.functional.softmax(logits, dim=1).squeeze().tolist()
+
+    print("im here after the torch")
 
     labels = {
         "0": "Battery", "1": "Biological", "2": "Cardboard", "3": "Clothes",
@@ -44,7 +45,7 @@ def waste_classification(image):
 
 # Create Gradio interface
 # iface = gr.Interface(
-#    fn=waste_classification,
+#     fn=waste_classification,
 #    inputs=gr.Image(type="numpy"),
 #    outputs=gr.Label(label="Prediction Scores"),
 #    title="Augmented Waste Classification",
