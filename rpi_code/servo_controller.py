@@ -33,13 +33,15 @@ class ServoController:
         self.frequency = frequency
         self.min_duty_cycle = min_duty_cycle
         self.max_duty_cycle = max_duty_cycle
-        self.current_angle = 0
+        self.current_angle = 125
+        
+        init_position = self.min_duty_cycle + (125 / 180) * (self.max_duty_cycle - self.min_duty_cycle)
         
         # Setup GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, self.frequency)
-        self.pwm.start(0)
+        self.pwm.start(init_position)
     
     def set_angle(self, angle: float) -> None:
         """
@@ -51,7 +53,7 @@ class ServoController:
         Raises:
             ValueError: If angle is outside valid range
         """
-        if not 0 <= angle <= 180:
+        if not 0 <= angle <= 270:
             raise ValueError("Angle must be between 0 and 180 degrees")
         
         # Convert angle to duty cycle

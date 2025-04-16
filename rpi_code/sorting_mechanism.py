@@ -45,8 +45,8 @@ class SortingMechanism:
         }
         
         # Initialize servos to home position
-        self.rotation_servo.set_angle(0)
-        self.gate_servo.set_angle(0)
+        self.rotation_servo.set_angle(125)
+        self.gate_servo.set_angle(125)
     
     def sort_waste(self, waste_type: WasteType) -> None:
         """
