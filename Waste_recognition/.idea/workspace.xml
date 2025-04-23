@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b4ec99b7-8873-46b1-b249-f9e9216862e7" name="Changes" comment="changing the type of the main, which is right now recognize the an image through path in the C: disk.">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+    <list default="true" id="b4ec99b7-8873-46b1-b249-f9e9216862e7" name="Changes" comment="Ok, right now I have succeeded in merging the two functions. By pressing the 'c' key, we can take a pic and classify the product!">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/Classifier.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/open_camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/open_camera.py" afterDir="false" />
@@ -52,7 +51,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Python.Main.executor": "Run",
+    "Python.Main.executor": "Debug",
     "Python.train_waste_model.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -136,6 +135,8 @@
       <workItem from="1743240174954" duration="241000" />
       <workItem from="1743489449787" duration="159000" />
       <workItem from="1743506754126" duration="1230000" />
+      <workItem from="1744460178163" duration="15000" />
+      <workItem from="1745136232774" duration="9398000" />
     </task>
     <task id="LOCAL-00001" summary="uplaod new function that gets a photo and classify it">
       <option name="closed" value="true" />

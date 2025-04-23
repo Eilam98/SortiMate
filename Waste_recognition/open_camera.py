@@ -3,6 +3,8 @@ import time
 from PIL import Image
 from Classifier import waste_classification
 
+image_path = "C://Users//user//Downloads//close_plast.jpg"
+
 # Initialize and configure for still capture
 picam2 = Picamera2()
 picam2.configure(picam2.create_still_configuration(
