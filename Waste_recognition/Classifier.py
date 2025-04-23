@@ -42,20 +42,3 @@ def waste_classification(image):
     predictions = {labels[str(i)]: round(probs[i], 4) for i in range(len(probs))}
 
     return predictions
-
-# Create Gradio interface
-# iface = gr.Interface(
-#     fn=waste_classification,
-#    inputs=gr.Image(type="numpy"),
-#    outputs=gr.Label(label="Prediction Scores"),
-#    title="Augmented Waste Classification",
-#    description="Upload an image to classify the type of waste."
-# )
-
-# Launch the app
-# if __name__ == "__main__":
-#    waste = waste_classification()
-#    print("The probabilities are: ", waste)
-#    waste = max(waste, key=waste.get)
-#    print("The waste is :", waste)
-# iface.launch()
