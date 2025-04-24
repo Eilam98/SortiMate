@@ -11,7 +11,6 @@ model_name = "prithivMLmods/Augmented-Waste-Classifier-SigLIP2"
 model = SiglipForImageClassification.from_pretrained(model_name)
 processor = AutoImageProcessor.from_pretrained(model_name)
 
-
 # test_image = "C://Users//user//Desktop//Project_SortiMate//SortiMate//Waste_recognition//dataset//glass//glass11.jpg"
 # test_image = "C://Users//user//Downloads//prod3.jpg"
 
@@ -42,3 +41,4 @@ def waste_classification(image):
     predictions = {labels[str(i)]: round(probs[i], 4) for i in range(len(probs))}
 
     return predictions
+
