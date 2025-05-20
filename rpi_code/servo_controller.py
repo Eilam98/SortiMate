@@ -53,7 +53,7 @@ class ServoController:
         Raises:
             ValueError: If angle is outside valid range
         """
-        if not 0 <= angle <= 270:
+        if not 0 <= angle <= 180:
             raise ValueError("Angle must be between 0 and 180 degrees")
         
         # Convert angle to duty cycle
