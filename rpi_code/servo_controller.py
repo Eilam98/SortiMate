@@ -9,7 +9,7 @@ from typing import Optional
 
 class ServoController:
     
-    def __init__(self, pin: int, frequency: int = 50, min_duty_cycle: float = 2.5, max_duty_cycle: float = 12.5):
+    def __init__(self, pin: int, home_position: int = 0, frequency: int = 50, min_duty_cycle: float = 2.5, max_duty_cycle: float = 12.5):
         """
         Initialize the servo controller.
         
@@ -18,9 +18,10 @@ class ServoController:
         self.frequency = frequency
         self.min_duty_cycle = min_duty_cycle
         self.max_duty_cycle = max_duty_cycle
-        self.current_angle = 125
+        self.home_position = home_position
+        self.current_angle = home_position
         
-        init_position = self.min_duty_cycle + (125 / 180) * (self.max_duty_cycle - self.min_duty_cycle)
+        init_position = self.min_duty_cycle + (home_position / 180) * (self.max_duty_cycle - self.min_duty_cycle)
         
         # Setup GPIO
         GPIO.setmode(GPIO.BCM)
@@ -46,7 +47,6 @@ class ServoController:
     def get_current_angle(self) -> float:
         """
         Get the current angle of the servo.
-
         """
         return self.current_angle
     

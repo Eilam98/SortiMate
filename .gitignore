@@ -1,4 +1,5 @@
 node_modules/
 __paycache__/
 myenv/
-.DS_Store
+.DS_Store/
+temporary_images

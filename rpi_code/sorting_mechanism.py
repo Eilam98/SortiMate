@@ -10,9 +10,9 @@ import time
 
 class WasteType(Enum):
     """Enumeration of possible waste types."""
-    PLASTIC = 1
-    PAPER = 2
-    ALUMINUM = 3
+    GLASS = 1
+    PLASTIC = 2
+    METAL = 3
     OTHER = 4
 
 class SortingMechanism:
@@ -26,20 +26,20 @@ class SortingMechanism:
         Initialize the sorting mechanism.
         
         """
-        self.rotation_servo = ServoController(rotation_pin)
-        self.gate_servo = ServoController(gate_pin)
+        self.rotation_servo = ServoController(rotation_pin, home_position=90)
+        self.gate_servo = ServoController(gate_pin, home_position=0)
         
         # Define angles for each bin position
         self.bin_angles = { # TO FIX: angles and enum
-            WasteType.PLASTIC: 0,
-            WasteType.PAPER: 90,
-            WasteType.ALUMINUM: 180,
-            WasteType.OTHER: 270
+            WasteType.GLASS: 0,
+            WasteType.PLASTIC: 60,
+            WasteType.METAL: 120,
+            WasteType.OTHER: 180
         }
         
         # Initialize servos to home position
-        self.rotation_servo.set_angle(90)
-        self.gate_servo.set_angle(0)
+        self.rotation_servo.set_angle(self.rotation_servo.home_position)
+        self.gate_servo.set_angle(self.gate_servo.home_position)
     
     def sort_waste(self, waste_type: WasteType) -> None:
         """
@@ -51,11 +51,11 @@ class SortingMechanism:
         # Move rotation servo to correct bin position
         target_angle = self.bin_angles[waste_type]
         self.rotation_servo.set_angle(target_angle)
-        
-        # Open gate to drop waste
-        self.gate_servo.set_angle(90)  # Open gate
+        time.sleep(1)  # Wait for pipe to rotate
+        self.gate_servo.set_angle(150)  # Open gate
         time.sleep(1)  # Wait for waste to drop
-        self.gate_servo.set_angle(0)   # Close gate
+        self.gate_servo.set_angle(self.gate_servo.home_position)
+        self.rotation_servo.set_angle(self.rotation_servo.home_position)
     
     def cleanup(self) -> None:
         """Clean up GPIO resources for both servos."""
