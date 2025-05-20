@@ -9,7 +9,7 @@ def __init__(self):
     # Initialize and configure for still capture
     self.picam2 = Picamera2()
     self.picam2.configure(picam2.create_still_configuration(
-        main={"format": "RGB888", "size": (640, 480)} # TO EDIT: size and format
+        main={"format": "RGB888", "size": picam2.sensor_reasolution} # TO EDIT: size and format
     ))
     self.picam2.start()
     os.makedirs("temporary_images", exist_ok=True)
