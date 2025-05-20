@@ -1,6 +1,6 @@
 import time
 from sorting_mechanism import SortingMechanism, WasteType
-from .Waste_recognition import CameraManager
+from Waste_recognition import CameraManager
 
 def main():
     try:
