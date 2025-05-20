@@ -1,25 +1,39 @@
 import time
 from sorting_mechanism import SortingMechanism, WasteType
+from Waste_recognition import open_camera
 
 def main():
     try:
         sorter = SortingMechanism(rotation_pin=27, gate_pin=22) # TO EDIT: GPIO17 for rotation servo, GPIO27 for gate servo
+        identifier = open_camera()
         print("Smart Recycling Bin initialized...")
         
-        time.sleep(2)
-        sorter.gate_servo.set_angle(150)
-        time.sleep(2)
-        sorter.rotation_servo.set_angle(180)
-        time.sleep(2)
-        sorter.rotation_servo.set_angle(0)
-        time.sleep(2)
-        
-        sorter.gate_servo.set_angle(0)
-        time.sleep(2)
-        sorter.rotation_servo.set_angle(90)
-        time.sleep(2)
-        
-        
+        print("Type 'c' (then press Enter) to capture an image for classification.")
+        print("Type 'q' (then Enter) to exit the program.")
+
+        while True:
+            # Wait for user input from the console
+            user_input = input("Enter command: ").strip().lower()
+
+            if user_input == 'q':
+                print("Exiting program.")
+                break
+            elif user_input == 'c':
+                print("im here after c note")
+                predicted_label = identifier.capture_image()
+                if predicted_label == "Plastic":
+                    waste_type = WasteType.PLASTIC
+                elif predicted_label == "Glass":
+                    waste_type = WasteType.GLASS
+                elif predicted_label == "Metal":
+                    waste_type = WasteType.METAL
+                else:
+                    waste_type = WasteType.OTHER
+                print(f"Sorting waste of type: {predicted_label}")
+                sorter.sort_waste(waste_type)
+            else:
+                print("Invalid command. Please type 'c' or 'q'.")
+
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
     except Exception as e:
