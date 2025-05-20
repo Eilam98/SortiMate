@@ -1,3 +1,4 @@
 node_modules/
 __paycache__/
-myenv
+myenv/
+.DS_Store

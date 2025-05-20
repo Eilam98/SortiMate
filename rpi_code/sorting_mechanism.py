@@ -18,20 +18,13 @@ class WasteType(Enum):
 class SortingMechanism:
     """
     A class to control the sorting mechanism using two servo motors.
-    
-    Attributes:
-        rotation_servo (ServoController): Servo motor for rotating the sorting pipe
-        gate_servo (ServoController): Servo motor for controlling the waste gate
-        bin_angles (Dict[WasteType, float]): Mapping of waste types to rotation angles
+
     """
     
     def __init__(self, rotation_pin: int, gate_pin: int):
         """
         Initialize the sorting mechanism.
         
-        Args:
-            rotation_pin (int): GPIO pin for the rotation servo
-            gate_pin (int): GPIO pin for the gate servo
         """
         self.rotation_servo = ServoController(rotation_pin)
         self.gate_servo = ServoController(gate_pin)
@@ -51,12 +44,6 @@ class SortingMechanism:
     def sort_waste(self, waste_type: WasteType) -> None:
         """
         Sort waste into the appropriate bin.
-        
-        Args:
-            waste_type (WasteType): Type of waste to sort
-            
-        Raises:
-            ValueError: If waste_type is not a valid WasteType
         """
         if waste_type not in self.bin_angles:
             raise ValueError(f"Invalid waste type: {waste_type}")
