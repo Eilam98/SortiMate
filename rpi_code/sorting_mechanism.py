@@ -37,7 +37,7 @@ class SortingMechanism:
         self.gate_servo = ServoController(gate_pin)
         
         # Define angles for each bin position
-        self.bin_angles = {
+        self.bin_angles = { # TO FIX: angles and enum
             WasteType.PLASTIC: 0,
             WasteType.PAPER: 90,
             WasteType.ALUMINUM: 180,
@@ -45,7 +45,7 @@ class SortingMechanism:
         }
         
         # Initialize servos to home position
-        self.rotation_servo.set_angle(0)
+        self.rotation_servo.set_angle(90)
         self.gate_servo.set_angle(0)
     
     def sort_waste(self, waste_type: WasteType) -> None:
@@ -72,5 +72,5 @@ class SortingMechanism:
     
     def cleanup(self) -> None:
         """Clean up GPIO resources for both servos."""
-        self.rotation_servo.cleanup()
+        #TO ADD: self.rotation_servo.cleanup()
         self.gate_servo.cleanup() 
