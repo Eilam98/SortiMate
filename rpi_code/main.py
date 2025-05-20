@@ -1,11 +1,11 @@
 import time
 from sorting_mechanism import SortingMechanism, WasteType
-from Waste_recognition import open_camera
+from rpi_code.Waste_recognition import CameraManager
 
 def main():
     try:
         sorter = SortingMechanism(rotation_pin=27, gate_pin=22) # TO EDIT: GPIO17 for rotation servo, GPIO27 for gate servo
-        identifier = open_camera()
+        identifier = CameraManager()
         print("Smart Recycling Bin initialized...")
         
         print("Type 'c' (then press Enter) to capture an image for classification.")
@@ -20,7 +20,7 @@ def main():
                 break
             elif user_input == 'c':
                 print("im here after c note")
-                predicted_label = identifier.capture_image()
+                predicted_label = identifier.identify_item()
                 if predicted_label == "Plastic":
                     waste_type = WasteType.PLASTIC
                 elif predicted_label == "Glass":
