@@ -61,4 +61,4 @@ class SortingMechanism:
         """Clean up GPIO resources for both servos."""
         #TO ADD: self.rotation_servo.cleanup()
         self.gate_servo.cleanup() 
-        self.rotation_servo.cleanup()
+        # self.rotation_servo.cleanup() # making a running time error!
