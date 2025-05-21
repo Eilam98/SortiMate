@@ -1,8 +1,8 @@
 import RPi.GPIO as GPIO
 import time
 
-LASER_GPIO = 17
-RECEIVER_GPIO = 27
+LASER_GPIO = 23
+RECEIVER_GPIO = 24
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(LASER_GPIO, GPIO.OUT)
