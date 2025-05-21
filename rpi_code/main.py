@@ -10,7 +10,7 @@ def main():
         sorter = SortingMechanism(rotation_pin=27,
                                   gate_pin=22)  # TO EDIT: GPIO17 for rotation servo, GPIO27 for gate servo
         identifier = CameraManager()
-        laser_sensor = LaserSensor(laser_pin=17, receiver_pin=27)  # needs to set based on the GPIO pins
+        laser_sensor = LaserSensor(laser_pin=23, receiver_pin=24)  # needs to set based on the GPIO pins
         print("Smart Recycling Bin initialized...")
 
         # print("Type 'c' (then press Enter) to capture an image for classification.")

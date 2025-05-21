@@ -2,4 +2,6 @@ node_modules/
 __paycache__/
 myenv/
 .DS_Store/
-temporary_images
+temporary_images/
+# Ignore all JetBrains IDE settings folders
+**/.idea/
