@@ -1,6 +1,7 @@
 import time
 from sorting_mechanism import SortingMechanism, WasteType
-from Waste_recognition import CameraManager
+from Waste_recognition.CameraManager import CameraManager
+import traceback
 
 def main():
     try:
@@ -20,7 +21,7 @@ def main():
                 break
             elif user_input == 'c':
                 print("im here after c note")
-                predicted_label = identifier.identify_item()
+                predicted_label = identifier.capture_image()
                 if predicted_label == "Plastic":
                     waste_type = WasteType.PLASTIC
                 elif predicted_label == "Glass":
@@ -38,6 +39,8 @@ def main():
         print("\nProgram interrupted by user")
     except Exception as e:
         print(f"An error occurred: {e}")
+        traceback.print_exc()
+        
     finally:
         # Clean up GPIO resources
         sorter.cleanup()
