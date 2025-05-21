@@ -1,30 +1,23 @@
 import RPi.GPIO as GPIO
 import time
 
-# Pin setup
-LASER_PIN = 17  # Connects to KY-008 'S' pin
-SENSOR_PIN = 27  # Connects to Receiver 'DO' pin
+LASER_GPIO = 17
+RECEIVER_GPIO = 27
 
-# Setup
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(LASER_PIN, GPIO.OUT)
-GPIO.setup(SENSOR_PIN, GPIO.IN)
+GPIO.setup(LASER_GPIO, GPIO.OUT)
+GPIO.setup(RECEIVER_GPIO, GPIO.IN)
 
-print("Starting laser test. Press Ctrl+C to stop.")
+GPIO.output(LASER_GPIO, GPIO.HIGH)  # Turn laser ON
 
 try:
-    GPIO.output(LASER_PIN, GPIO.HIGH)  # Turn ON laser
     while True:
-        sensor_value = GPIO.input(SENSOR_PIN)
-        if sensor_value == GPIO.LOW:
-            print("✅ Laser beam detected.")
+        beam_detected = GPIO.input(RECEIVER_GPIO)
+        if beam_detected == GPIO.LOW:
+            print("Laser beam hit the sensor.")
         else:
-            print("❌ No beam detected.")
+            print("No laser beam detected.")
         time.sleep(0.5)
 
 except KeyboardInterrupt:
-    print("Test stopped by user.")
-
-finally:
-    GPIO.output(LASER_PIN, GPIO.LOW)  # Turn OFF laser
     GPIO.cleanup()
