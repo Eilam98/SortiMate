@@ -1,6 +1,4 @@
-import subprocess # TO DELETE?
-import time # TO DELETE?
-import os 
+import os
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -15,7 +13,11 @@ class CameraManager:
             main={"format": "RGB888", "size": self.picam2.sensor_resolution} # TO EDIT: size and format
         ))
         self.picam2.start()
-        os.makedirs("temporary_images", exist_ok=True)
+        
+        #TO DELETE?
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.images_dir = os.path.join(base_dir, "temporary_images")
+        os.makedirs(images_dir, exist_ok=True)
 
     def capture_image(self):
         # Capture the current frame as a NumPy array
@@ -31,9 +33,9 @@ class CameraManager:
         print("Predicted waste type:", predicted_label)
         print("Predicted score:", predictions[predicted_label])
 
-        # TO DELETE
+        # TO DELETE?
         im = Image.fromarray(frame)
-        im.save("temporary_images/current_image.jpg")
+        im.save(os.path.join(temp_dir, "current_image.jpg"))
 
         return predicted_label
 
