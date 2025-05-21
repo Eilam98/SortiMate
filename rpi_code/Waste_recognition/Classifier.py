@@ -1,7 +1,7 @@
 import gradio as gr
 from transformers import AutoImageProcessor
 from transformers import SiglipForImageClassification
-from transformers.image_utils import load_image
+#from transformers.image_utils import load_image
 from PIL import Image
 import torch
 import numpy as np
@@ -9,7 +9,7 @@ import numpy as np
 # Load model and processor
 model_name = "prithivMLmods/Augmented-Waste-Classifier-SigLIP2"
 model = SiglipForImageClassification.from_pretrained(model_name)
-processor = AutoImageProcessor.from_pretrained(model_name)
+processor = AutoImageProcessor.from_pretrained(model_name, use_fast=True)
 
 def waste_classification(image):
     """Predicts waste classification for an image."""
