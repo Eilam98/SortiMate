@@ -43,6 +43,8 @@ class ServoController:
         self.pwm.ChangeDutyCycle(duty_cycle)
         self.current_angle = angle
         time.sleep(0.3)  # Give servo time to move
+        self.pwm.ChangeDutyCycle(0) # trying to stop the pulses
+        self.current_angle = angle # also in here trying to stop the pulses
     
     def get_current_angle(self) -> float:
         """
