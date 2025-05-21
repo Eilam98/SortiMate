@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b4ec99b7-8873-46b1-b249-f9e9216862e7" name="Changes" comment="Ok, right now I have succeeded in merging the two functions. By pressing the 'c' key, we can take a pic and classify the product!">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/Classifier.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/open_camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/open_camera.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,12 +27,9 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;AvshiSha&quot;
-  }
-}</component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {}
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/AvshiSha/SortiMate.git&quot;,
@@ -49,24 +44,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.Main.executor": "Debug",
-    "Python.train_waste_model.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merge__camra__classifier",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/user/Desktop/Project_SortiMate/Main.py",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.Main.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.train_waste_model.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;laser-detect-bottle-branch&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/user/Desktop/Project_SortiMate/Main.py&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Project_SortiMate" />
@@ -136,7 +131,10 @@
       <workItem from="1743489449787" duration="159000" />
       <workItem from="1743506754126" duration="1230000" />
       <workItem from="1744460178163" duration="15000" />
-      <workItem from="1745136232774" duration="9398000" />
+      <workItem from="1745136232774" duration="10553000" />
+      <workItem from="1746458711661" duration="1349000" />
+      <workItem from="1747043064475" duration="682000" />
+      <workItem from="1747815710181" duration="389000" />
     </task>
     <task id="LOCAL-00001" summary="uplaod new function that gets a photo and classify it">
       <option name="closed" value="true" />
@@ -178,7 +176,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743489494032</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Ok, right now I have succeeded in merging the two functions. By pressing the 'c' key, we can take a pic and classify the product!">
+      <option name="closed" value="true" />
+      <created>1745390796996</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1745390796996</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -199,7 +205,8 @@
     <MESSAGE value="uplaod new function that gets a photo and classify it" />
     <MESSAGE value="changing the type of the main, which be based on open source in Huggingface." />
     <MESSAGE value="changing the type of the main, which is right now recognize the an image through path in the C: disk." />
-    <option name="LAST_COMMIT_MESSAGE" value="changing the type of the main, which is right now recognize the an image through path in the C: disk." />
+    <MESSAGE value="Ok, right now I have succeeded in merging the two functions. By pressing the 'c' key, we can take a pic and classify the product!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ok, right now I have succeeded in merging the two functions. By pressing the 'c' key, we can take a pic and classify the product!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
