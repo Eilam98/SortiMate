@@ -15,14 +15,14 @@ def main():
         monitor = MonitorManager(
             image_dirs = {
                 "default":      [os.path.join(BASE_DIR, "monitor_images", "default1.png"),
-                                os.path.join(BASE_DIR, "monitor_images", "default2.png")],
+                                os.path.join(BASE_DIR, "monitor_images", "default2.jpeg")],
                 "classifying":  [os.path.join(BASE_DIR, "monitor_images", "classify1.gif"),
                                 os.path.join(BASE_DIR, "monitor_images", "classify2.gif")],
-                "plastic":      [os.path.join(BASE_DIR, "monitor_images", "plastic.png")],
-                "glass":        [os.path.join(BASE_DIR, "monitor_images", "glass.png")],
-                "metal":        [os.path.join(BASE_DIR, "monitor_images", "metal.png")],
-                "other":        [os.path.join(BASE_DIR, "monitor_images", "other.png")],
-                "summary":      [os.path.join(BASE_DIR, "monitor_images", "summary.png")],
+                "plastic":      [os.path.join(BASE_DIR, "monitor_images", "plastic.jpeg")],
+                "glass":        [os.path.join(BASE_DIR, "monitor_images", "glass.jpeg")],
+                "metal":        [os.path.join(BASE_DIR, "monitor_images", "metal.jpeg")],
+                "other":        [os.path.join(BASE_DIR, "monitor_images", "other.jpeg")],
+                "summary":      [os.path.join(BASE_DIR, "monitor_images", "summary.jpeg")],
             },
             interval=3.0,             # change every 3 seconds
             window_size=(1920, 1080),  # match your monitor resolution
