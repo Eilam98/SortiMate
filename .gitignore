@@ -1,5 +1,6 @@
 node_modules/
-__paycache__/
+__pycache__/
 myenv/
 .DS_Store/
-temporary_images
+temporary_images/
+**/.idea/
