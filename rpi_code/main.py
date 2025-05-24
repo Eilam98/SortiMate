@@ -42,7 +42,7 @@ def main():
                 break
             elif user_input == 'c':
                 print("im here after c note")
-                monitor.set_state("classifying")
+                monitor.show("classifying")
                 predicted_label = identifier.capture_image()
                 if predicted_label == "Plastic":
                     waste_type = WasteType.PLASTIC
@@ -58,7 +58,7 @@ def main():
                 sorter.sort_waste(waste_type)
                 monitor.show("summary")
                 # schedule a switch back to default in 5 s, without blocking the program
-                threading.Timer(5.0, lambda: monitor.set_state("default")).start()
+                threading.Timer(5.0, lambda: monitor.show("default")).start()
             else:
                 print("Invalid command. Please type 'c' or 'q'.")
         time.sleep(1)
