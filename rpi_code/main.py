@@ -1,6 +1,5 @@
 import time
 import os
-import threading
 from sorting_mechanism import SortingMechanism, WasteType
 from Waste_recognition.CameraManager import CameraManager
 import traceback
@@ -55,10 +54,12 @@ def main():
                     predicted_label = "Other"
                 monitor.show(predicted_label)
                 print(f"Sorting waste of type: {predicted_label}")
+                time.sleep(5)
                 sorter.sort_waste(waste_type)
                 monitor.show("summary")
-                # schedule a switch back to default in 5 s, without blocking the program
-                threading.Timer(5.0, lambda: monitor.show("default")).start()
+                time.sleep(5)
+                monitor.show("default")
+                
             else:
                 print("Invalid command. Please type 'c' or 'q'.")
         time.sleep(1)
