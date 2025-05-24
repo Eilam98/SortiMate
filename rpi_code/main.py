@@ -12,25 +12,24 @@ def main():
         identifier = CameraManager()
 
         BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # get the directory where main.py lives
+        IMG  = os.path.join(BASE_DIR, "monitor_images")
+        image_dirs = {
+            "default":      os.path.join(IMG, "default.png"),
+            "classifying":  os.path.join(IMG, "classify.gif"),
+            "Plastic":      os.path.join(IMG, "plastic.jpeg"),
+            "Glass":        os.path.join(IMG, "glass.jpeg"),
+            "Metal":        os.path.join(IMG, "metal.jpeg"),
+            "Other":        os.path.join(IMG, "other.jpeg"),
+            "summary":      os.path.join(IMG, "summary.jpeg"),
+        }
         monitor = MonitorManager(
-            image_dirs = {
-                "default":      [os.path.join(BASE_DIR, "monitor_images", "default1.png"),
-                                os.path.join(BASE_DIR, "monitor_images", "default2.jpeg")],
-                "classifying":  [os.path.join(BASE_DIR, "monitor_images", "classify1.gif"),
-                                os.path.join(BASE_DIR, "monitor_images", "classify2.gif")],
-                "plastic":      [os.path.join(BASE_DIR, "monitor_images", "plastic.jpeg")],
-                "glass":        [os.path.join(BASE_DIR, "monitor_images", "glass.jpeg")],
-                "metal":        [os.path.join(BASE_DIR, "monitor_images", "metal.jpeg")],
-                "other":        [os.path.join(BASE_DIR, "monitor_images", "other.jpeg")],
-                "summary":      [os.path.join(BASE_DIR, "monitor_images", "summary.jpeg")],
-            },
-            interval=3.0,             # change every 3 seconds
-            window_size=(1920, 1080),  # match your monitor resolution
+            images_dir=image_dirs,
+            window_size=(1920, 1080), 
             display=":0.1"
         )
-        monitor.start()
+        monitor.show("default")
+
         print("Smart Recycling Bin initialized...")
-        
         print("Type 'c' (then press Enter) to capture an image for classification.")
         print("Type 'q' (then Enter) to exit the program.")
 
@@ -54,14 +53,15 @@ def main():
                 else:
                     waste_type = WasteType.OTHER
                     predicted_label = "Other"
-                monitor.set_state(predicted_label)
+                monitor.show(predicted_label)
                 print(f"Sorting waste of type: {predicted_label}")
                 sorter.sort_waste(waste_type)
-                monitor.set_state("summary")
+                monitor.show("summary")
                 # schedule a switch back to default in 5 s, without blocking the program
                 threading.Timer(5.0, lambda: monitor.set_state("default")).start()
             else:
                 print("Invalid command. Please type 'c' or 'q'.")
+        time.sleep(1)
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
