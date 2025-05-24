@@ -10,7 +10,7 @@ class MonitorManager:
         self,
         images_dir: dict,
         window_size: tuple = (800, 600),
-        display: str = ":0.1",
+        display: str = ":0.0",
     ):
         """
         :param images_dir: mapping state_name -> single image/GIF file path
