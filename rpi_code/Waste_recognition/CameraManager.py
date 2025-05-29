@@ -37,7 +37,7 @@ class CameraManager:
         im = Image.fromarray(frame)
         im.save(os.path.join(temp_dir, "current_image.jpg"))
 
-        return predicted_label
+        return predicted_label, predictions[predicted_label]
 
     def __del__(self):
         # Stop the camera preview before exiting
