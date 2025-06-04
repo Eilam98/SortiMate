@@ -54,7 +54,7 @@ class AnalogLaserReceiver:
         time.sleep(0.0001)  # Small delay for stability
         
         try:
-            # Send command and read response
+            # Send command and read response - using the same approach as spi_test.py
             resp = self.spi.xfer2([cmd, 0x00, 0x00])
             
             # Debug print for troubleshooting
@@ -131,6 +131,24 @@ def main():
             value = laser_receiver.read_adc_channel(channel)
             print(f"Channel {channel}: {value}")
         print("----------------------------------------")
+        
+        # Test with laser on and off
+        print("\nTesting with laser on and off:")
+        print("Laser ON - reading values...")
+        for _ in range(3):
+            value = laser_receiver.read_value()
+            print(f"Value with laser ON: {value}")
+            time.sleep(0.5)
+        
+        print("\nLaser OFF - reading values...")
+        laser_receiver.turn_laser_off()
+        for _ in range(3):
+            value = laser_receiver.read_value()
+            print(f"Value with laser OFF: {value}")
+            time.sleep(0.5)
+        
+        print("\nTurning laser back ON for continuous monitoring...")
+        laser_receiver.turn_laser_on()
         
         while True:
             value = laser_receiver.read_value()
