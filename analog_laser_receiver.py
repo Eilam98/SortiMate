@@ -3,7 +3,7 @@ import time
 import RPi.GPIO as GPIO
 
 class AnalogLaserReceiver:
-    def __init__(self):
+    def __init__(self, laser_pin=17):  # Default laser pin is GPIO 17
         # Initialize SPI
         self.spi = spidev.SpiDev()
         self.spi.open(0, 0)  # Bus 0, CE0 (GPIO 8)
@@ -15,6 +15,19 @@ class AnalogLaserReceiver:
         GPIO.setup(9, GPIO.IN)   # MISO
         GPIO.setup(10, GPIO.OUT) # MOSI
         GPIO.setup(11, GPIO.OUT) # SCLK
+        
+        # Set up laser pin
+        self.laser_pin = laser_pin
+        GPIO.setup(self.laser_pin, GPIO.OUT)
+        self.laser_on = False
+
+    def turn_laser_on(self):
+        GPIO.output(self.laser_pin, GPIO.HIGH)
+        self.laser_on = True
+
+    def turn_laser_off(self):
+        GPIO.output(self.laser_pin, GPIO.LOW)
+        self.laser_on = False
 
     def read_value(self):
         # Read analog value from MCP3008 channel 0
@@ -27,6 +40,7 @@ class AnalogLaserReceiver:
         return value
 
     def cleanup(self):
+        self.turn_laser_off()  # Make sure laser is off before cleanup
         self.spi.close()
         GPIO.cleanup()
 
@@ -39,6 +53,9 @@ def main():
         THRESHOLD = 500
         
         print("Starting laser detection...")
+        print("Turning laser ON...")
+        laser_receiver.turn_laser_on()
+        
         while True:
             value = laser_receiver.read_value()
             if value < THRESHOLD:
