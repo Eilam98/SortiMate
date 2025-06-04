@@ -10,7 +10,7 @@ class AnalogLaserReceiver:
         # Initialize SPI
         self.spi = spidev.SpiDev()
         self.spi.open(0, 0)  # Bus 0, CE0 (GPIO 8)
-        self.spi.max_speed_hz = 100000  # Reduced speed for testing
+        self.spi.max_speed_hz = 100000  # 100kHz
         self.spi.mode = 0  # Set SPI mode 0
         
         # Set up GPIO pins
@@ -55,7 +55,6 @@ class AnalogLaserReceiver:
             
             # Debug print for troubleshooting
             print(f"Channel {channel} raw response: {[hex(x) for x in resp]}")
-            print(f"Channel {channel} binary: {[bin(x)[2:].zfill(8) for x in resp]}")
             
             # Combine the response bytes into a 10-bit value
             value = ((resp[1] & 0x03) << 8) + resp[2]
@@ -114,6 +113,13 @@ def main():
         
         print("\nStarting continuous monitoring...")
         print("Press Ctrl+C to exit")
+        print("----------------------------------------")
+        
+        # First, read all channels to see their values
+        print("\nInitial channel readings:")
+        for channel in range(8):
+            value = laser_receiver.read_adc_channel(channel)
+            print(f"Channel {channel}: {value}")
         print("----------------------------------------")
         
         while True:
