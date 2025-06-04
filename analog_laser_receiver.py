@@ -24,6 +24,46 @@ class AnalogLaserReceiver:
         
         # Initialize CS pin
         GPIO.output(8, GPIO.HIGH)  # CS active low, so start high
+        
+        # Test ADC connection
+        print("Testing ADC connection...")
+        self.test_adc()
+
+    def test_adc(self):
+        """Test ADC connection by reading all channels"""
+        print("\nTesting all ADC channels:")
+        for channel in range(8):
+            value = self.read_adc_channel(channel)
+            print(f"Channel {channel}: {value}")
+        print("ADC test complete\n")
+
+    def read_adc_channel(self, channel):
+        """Read a specific ADC channel"""
+        # Command format: [start bit, single-ended bit, channel select, don't care bits]
+        cmd = 0x80 | ((channel & 0x07) << 4)  # 1000 0000 + channel bits
+        
+        # Activate CS
+        GPIO.output(8, GPIO.LOW)
+        time.sleep(0.0001)  # Small delay for stability
+        
+        # Send command and read response
+        resp = self.spi.xfer2([cmd, 0x00, 0x00])
+        
+        # Deactivate CS
+        GPIO.output(8, GPIO.HIGH)
+        
+        # Combine the response bytes into a 10-bit value
+        value = ((resp[1] & 0x03) << 8) + resp[2]
+        return value
+
+    def read_value(self):
+        # Read analog value from MCP3008 channel 0
+        value = self.read_adc_channel(0)
+        
+        # Debug print
+        print(f"ADC Channel 0 value: {value}")
+        
+        return value
 
     def turn_laser_on(self):
         print("Turning laser ON...")
@@ -40,30 +80,6 @@ class AnalogLaserReceiver:
         GPIO.output(self.laser_pin, GPIO.LOW)
         self.laser_on = False
 
-    def read_value(self):
-        # Read analog value from MCP3008 channel 0
-        # Command format: [start bit, single-ended bit, channel select, don't care bits]
-        cmd = 0x80  # 1000 0000 - start bit + single-ended + channel 0
-        
-        # Activate CS
-        GPIO.output(8, GPIO.LOW)
-        time.sleep(0.0001)  # Small delay for stability
-        
-        # Send command and read response
-        resp = self.spi.xfer2([cmd, 0x00, 0x00])
-        
-        # Deactivate CS
-        GPIO.output(8, GPIO.HIGH)
-        
-        # Combine the response bytes into a 10-bit value
-        value = ((resp[1] & 0x03) << 8) + resp[2]
-        
-        # Debug print
-        print(f"Raw response: {resp}")
-        print(f"Calculated value: {value}")
-        
-        return value
-
     def cleanup(self):
         self.turn_laser_off()  # Make sure laser is off before cleanup
         self.spi.close()
@@ -77,16 +93,19 @@ def main():
         # Threshold for laser detection (adjust as needed)
         THRESHOLD = 500
         
-        print("Starting laser detection...")
+        print("\nStarting laser detection...")
         print("Turning laser ON...")
         laser_receiver.turn_laser_on()
         
         # Test laser state
         print(f"Laser pin state: {'HIGH' if GPIO.input(laser_receiver.laser_pin) == GPIO.HIGH else 'LOW'}")
         
+        print("\nStarting continuous monitoring...")
+        print("Press Ctrl+C to exit")
+        print("----------------------------------------")
+        
         while True:
             value = laser_receiver.read_value()
-            print(f"ADC Value: {value}")
             if value < THRESHOLD:
                 print("Laser beam detected")
             else:
