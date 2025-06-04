@@ -17,17 +17,12 @@ class AnalogLaserReceiver:
         # Set up GPIO pins
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(8, GPIO.OUT)  # CE0
-        GPIO.setup(9, GPIO.IN)   # MISO
-        GPIO.setup(10, GPIO.OUT) # MOSI
-        GPIO.setup(11, GPIO.OUT) # SCLK
+        GPIO.output(8, GPIO.HIGH)  # CS active low, so start high
         
         # Set up laser pin
         self.laser_pin = laser_pin
         GPIO.setup(self.laser_pin, GPIO.OUT)
         self.laser_on = False
-        
-        # Initialize CS pin
-        GPIO.output(8, GPIO.HIGH)  # CS active low, so start high
         
         # Register cleanup function
         atexit.register(self.cleanup)
@@ -54,7 +49,7 @@ class AnalogLaserReceiver:
         time.sleep(0.0001)  # Small delay for stability
         
         try:
-            # Send command and read response - using the same approach as spi_test.py
+            # Send command and read response
             resp = self.spi.xfer2([cmd, 0x00, 0x00])
             
             # Debug print for troubleshooting
