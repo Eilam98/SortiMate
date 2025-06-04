@@ -1,6 +1,7 @@
 import spidev
 import time
 import RPi.GPIO as GPIO
+import atexit
 
 class AnalogLaserReceiver:
     def __init__(self, laser_pin=23):  # Default laser pin is GPIO 23
@@ -27,6 +28,9 @@ class AnalogLaserReceiver:
         
         # Initialize CS pin
         GPIO.output(8, GPIO.HIGH)  # CS active low, so start high
+        
+        # Register cleanup function
+        atexit.register(self.cleanup)
         
         # Test ADC connection
         print("Testing ADC connection...")
@@ -92,9 +96,15 @@ class AnalogLaserReceiver:
         self.laser_on = False
 
     def cleanup(self):
-        self.turn_laser_off()  # Make sure laser is off before cleanup
-        self.spi.close()
-        GPIO.cleanup()
+        """Clean up GPIO and SPI resources"""
+        try:
+            self.turn_laser_off()  # Make sure laser is off
+            if hasattr(self, 'spi'):
+                self.spi.close()
+            GPIO.cleanup()
+            print("Resources cleaned up successfully")
+        except Exception as e:
+            print(f"Error during cleanup: {e}")
 
 def main():
     try:
@@ -135,7 +145,8 @@ def main():
     except Exception as e:
         print(f"Error occurred: {e}")
     finally:
-        laser_receiver.cleanup()
+        # Cleanup will be handled by atexit handler
+        pass
 
 if __name__ == "__main__":
     main() 
