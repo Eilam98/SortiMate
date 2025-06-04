@@ -10,10 +10,8 @@ class AnalogLaserReceiver:
         # Initialize SPI
         self.spi = spidev.SpiDev()
         self.spi.open(0, 0)  # Bus 0, CE0 (GPIO 8)
-        self.spi.max_speed_hz = 1000000  # 1MHz
+        self.spi.max_speed_hz = 100000  # Reduced speed for testing
         self.spi.mode = 0  # Set SPI mode 0
-        self.spi.lsbfirst = False  # Most significant bit first
-        self.spi.bits_per_word = 8
         
         # Set up GPIO pins
         GPIO.setmode(GPIO.BCM)
@@ -57,6 +55,7 @@ class AnalogLaserReceiver:
             
             # Debug print for troubleshooting
             print(f"Channel {channel} raw response: {[hex(x) for x in resp]}")
+            print(f"Channel {channel} binary: {[bin(x)[2:].zfill(8) for x in resp]}")
             
             # Combine the response bytes into a 10-bit value
             value = ((resp[1] & 0x03) << 8) + resp[2]
@@ -67,6 +66,7 @@ class AnalogLaserReceiver:
         finally:
             # Deactivate CS
             GPIO.output(8, GPIO.HIGH)
+            time.sleep(0.0001)  # Small delay after CS
 
     def read_value(self):
         # Read analog value from MCP3008 channel 0
