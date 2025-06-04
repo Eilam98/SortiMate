@@ -3,7 +3,7 @@ import time
 import RPi.GPIO as GPIO
 
 class AnalogLaserReceiver:
-    def __init__(self, laser_pin=17):  # Default laser pin is GPIO 17
+    def __init__(self, laser_pin=23):  # Default laser pin is GPIO 23
         # Initialize SPI
         self.spi = spidev.SpiDev()
         self.spi.open(0, 0)  # Bus 0, CE0 (GPIO 8)
