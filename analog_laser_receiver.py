@@ -4,11 +4,16 @@ import RPi.GPIO as GPIO
 
 class AnalogLaserReceiver:
     def __init__(self, laser_pin=23):  # Default laser pin is GPIO 23
+        # Disable GPIO warnings
+        GPIO.setwarnings(False)
+        
         # Initialize SPI
         self.spi = spidev.SpiDev()
         self.spi.open(0, 0)  # Bus 0, CE0 (GPIO 8)
         self.spi.max_speed_hz = 1000000  # 1MHz
         self.spi.mode = 0  # Set SPI mode 0
+        self.spi.lsbfirst = False  # Most significant bit first
+        self.spi.bits_per_word = 8
         
         # Set up GPIO pins
         GPIO.setmode(GPIO.BCM)
@@ -46,15 +51,22 @@ class AnalogLaserReceiver:
         GPIO.output(8, GPIO.LOW)
         time.sleep(0.0001)  # Small delay for stability
         
-        # Send command and read response
-        resp = self.spi.xfer2([cmd, 0x00, 0x00])
-        
-        # Deactivate CS
-        GPIO.output(8, GPIO.HIGH)
-        
-        # Combine the response bytes into a 10-bit value
-        value = ((resp[1] & 0x03) << 8) + resp[2]
-        return value
+        try:
+            # Send command and read response
+            resp = self.spi.xfer2([cmd, 0x00, 0x00])
+            
+            # Debug print for troubleshooting
+            print(f"Channel {channel} raw response: {[hex(x) for x in resp]}")
+            
+            # Combine the response bytes into a 10-bit value
+            value = ((resp[1] & 0x03) << 8) + resp[2]
+            return value
+        except Exception as e:
+            print(f"Error reading channel {channel}: {e}")
+            return 0
+        finally:
+            # Deactivate CS
+            GPIO.output(8, GPIO.HIGH)
 
     def read_value(self):
         # Read analog value from MCP3008 channel 0
