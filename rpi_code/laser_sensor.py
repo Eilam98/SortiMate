@@ -78,11 +78,11 @@ class LaserSensor:
         value = self.read_value()
         if (value > self.threshold):
             for i in range(NUM_BEAM_BROKEN_CHECKS):
-                value = self.read_value()
                 print("inner value: ", value)
                 if value > self.threshold:
                     count_broken += 1
                 time.sleep(0.1)
+                value = self.read_value()
         else:
             print("value: ", value)
             time.sleep(0.2)
