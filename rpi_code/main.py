@@ -7,10 +7,9 @@ from laser_sensor import LaserSensor
 
 def main():
     try:
-        # Initialize components
-        sorter = SortingMechanism(rotation_pin=27, gate_pin=22)
+        sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         identifier = CameraManager()
-        laser_sensor = LaserSensor(laser_pin=23, threshold=500)  # Using default threshold of 500
+        laser_sensor = LaserSensor(laser_pin=23, threshold=100)
         
         print("Smart Recycling Bin initialized...")
         print("Waiting for object to enter the bin...")
@@ -20,7 +19,7 @@ def main():
             while not laser_sensor.is_beam_broken():
                 time.sleep(0.1)
             
-            print("Object detected!")
+            print("New item detected!")
             predicted_label = identifier.capture_image()
 
             if predicted_label == "Plastic":
@@ -39,7 +38,7 @@ def main():
             while laser_sensor.is_beam_broken():
                 time.sleep(0.1)
             
-            print("Object sorted. Waiting for next object...")
+            print("Item sorted. Waiting for the next item...")
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -49,7 +48,6 @@ def main():
         traceback.print_exc()
 
     finally:
-        # Clean up resources
         sorter.cleanup()
         laser_sensor.cleanup()
 
