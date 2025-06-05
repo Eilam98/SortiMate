@@ -17,7 +17,7 @@ class CameraManager:
         #TO DELETE?
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.images_dir = os.path.join(base_dir, "temporary_images")
-        os.makedirs(images_dir, exist_ok=True)
+        os.makedirs(self.images_dir, exist_ok=True)
 
     def capture_image(self):
         # Capture the current frame as a NumPy array
@@ -35,7 +35,7 @@ class CameraManager:
 
         # TO DELETE?
         im = Image.fromarray(frame)
-        im.save(os.path.join(temp_dir, "current_image.jpg"))
+        im.save(os.path.join(self.images_dir, "current_image.jpg"))
 
         return predicted_label
 
