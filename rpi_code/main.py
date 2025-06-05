@@ -9,7 +9,7 @@ def main():
     try:
         sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         identifier = CameraManager()
-        laser_sensor = LaserSensor(laser_pin=23, threshold=100)
+        laser_sensor = LaserSensor(laser_pin=23)
         
         print("Smart Recycling Bin initialized...")
         print("Waiting for object to enter the bin...")
