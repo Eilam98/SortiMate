@@ -3,8 +3,10 @@ import time
 import RPi.GPIO as GPIO
 import atexit
 
+NUM_BEAM_BROKEN_CHECKS = 5 
+PASS_CHECKS_PRECENTAGE = 0.8  # 80% of checks must be broken to consider beam broken
 class LaserSensor:
-    def __init__(self, laser_pin=23, threshold=500):
+    def __init__(self, laser_pin=23, threshold=100):
         """
         Initialize the laser sensor with specified pins and threshold.
         
@@ -12,10 +14,8 @@ class LaserSensor:
             laser_pin (int): GPIO pin number for the laser (default: 23)
             threshold (int): Threshold value for beam detection (default: 500)
         """
-        # Disable GPIO warnings
-        GPIO.setwarnings(False)
-        
-        # Store parameters
+        GPIO.setwarnings(False) # Disable GPIO warnings
+    
         self.laser_pin = laser_pin
         self.threshold = threshold
         
@@ -37,7 +37,6 @@ class LaserSensor:
         # Register cleanup function
         atexit.register(self.cleanup)
         
-        # Turn on the laser
         self.turn_laser_on()
 
     def read_adc_channel(self, channel):
@@ -75,8 +74,12 @@ class LaserSensor:
         Returns:
             bool: True if beam is broken (value < threshold), False otherwise
         """
-        value = self.read_value()
-        return value < self.threshold
+        count_broken = 0
+        for i in range(NUM_BEAM_BROKEN_CHECKS):
+            if self.read_value() < self.threshold:
+                count_broken += 1
+            time.sleep(0.1)
+        return count_broken >= (NUM_BEAM_BROKEN_CHECKS * PASS_CHECKS_PRECENTAGE)
 
     def turn_laser_on(self):
         """Turn on the laser"""
@@ -97,28 +100,3 @@ class LaserSensor:
             GPIO.cleanup()
         except Exception as e:
             print(f"Error during cleanup: {e}")
-
-def main():
-    """Test function for the LaserSensor class"""
-    try:
-        # Create instance of LaserSensor
-        sensor = LaserSensor()
-        
-        print("Starting laser sensor test...")
-        print("Press Ctrl+C to exit")
-        print("----------------------------------------")
-        
-        while True:
-            if sensor.is_beam_broken():
-                print("Beam broken!")
-            else:
-                print("Beam intact")
-            time.sleep(0.5)
-            
-    except KeyboardInterrupt:
-        print("\nExiting...")
-    except Exception as e:
-        print(f"Error occurred: {e}")
-
-if __name__ == "__main__":
-    main() 
