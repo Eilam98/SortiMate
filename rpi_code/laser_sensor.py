@@ -3,7 +3,7 @@ import time
 import RPi.GPIO as GPIO
 import atexit
 
-NUM_BEAM_BROKEN_CHECKS = 10 
+NUM_BEAM_BROKEN_CHECKS = 5 
 PASS_CHECKS_PRECENTAGE = 0.8  # 80% of checks must be broken to consider beam broken
 class LaserSensor:
     def __init__(self, laser_pin=23, threshold=250):
@@ -76,9 +76,11 @@ class LaserSensor:
         """
         count_broken = 0
         for i in range(NUM_BEAM_BROKEN_CHECKS):
-            if self.read_value() > self.threshold:
+            value = self.read_value()
+            if value > self.threshold:
                 count_broken += 1
-            time.sleep(0.1)
+            time.sleep(0.2)
+            print("value: ", value)
         return count_broken >= (NUM_BEAM_BROKEN_CHECKS * PASS_CHECKS_PRECENTAGE)
 
     def turn_laser_on(self):
