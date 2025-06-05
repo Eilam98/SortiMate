@@ -6,7 +6,7 @@ import atexit
 NUM_BEAM_BROKEN_CHECKS = 5 
 PASS_CHECKS_PRECENTAGE = 0.8  # 80% of checks must be broken to consider beam broken
 class LaserSensor:
-    def __init__(self, laser_pin=23, threshold=250):
+    def __init__(self, laser_pin=23, threshold=100):
         """
         Initialize the laser sensor with specified pins and threshold.
         
@@ -74,13 +74,18 @@ class LaserSensor:
         Returns:
             bool: True if beam is broken (value < threshold), False otherwise
         """
-        count_broken = 0
-        for i in range(NUM_BEAM_BROKEN_CHECKS):
-            value = self.read_value()
-            if value > self.threshold:
-                count_broken += 1
-            time.sleep(0.2)
+        value = self.read_value()
+        if (value > self.threshold):
+            count_broken = 0
+            for i in range(NUM_BEAM_BROKEN_CHECKS):
+                value = self.read_value()
+                print("inner value: ", value)
+                if value > self.threshold:
+                    count_broken += 1
+                time.sleep(0.1)
+        else:
             print("value: ", value)
+            time.sleep(0.2)
         return count_broken >= (NUM_BEAM_BROKEN_CHECKS * PASS_CHECKS_PRECENTAGE)
 
     def turn_laser_on(self):
