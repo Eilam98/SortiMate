@@ -76,7 +76,7 @@ class LaserSensor:
         """
         count_broken = 0
         for i in range(NUM_BEAM_BROKEN_CHECKS):
-            if self.read_value() < self.threshold:
+            if self.read_value() > self.threshold:
                 count_broken += 1
             time.sleep(0.1)
         return count_broken >= (NUM_BEAM_BROKEN_CHECKS * PASS_CHECKS_PRECENTAGE)
