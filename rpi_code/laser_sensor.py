@@ -74,9 +74,9 @@ class LaserSensor:
         Returns:
             bool: True if beam is broken (value < threshold), False otherwise
         """
+        count_broken = 0
         value = self.read_value()
         if (value > self.threshold):
-            count_broken = 0
             for i in range(NUM_BEAM_BROKEN_CHECKS):
                 value = self.read_value()
                 print("inner value: ", value)
