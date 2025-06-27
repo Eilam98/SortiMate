@@ -20,6 +20,7 @@ class CameraManager:
         os.makedirs(self.images_dir, exist_ok=True)
 
     def capture_image(self):
+        time.sleep(0.2)  # Let the camera adjust exposure
         frame_bgr = self.picam2.capture_array("main") # Grab the frame – it comes out BGR
         frame_rgb = frame_bgr[..., ::-1] # Convert BGR ➜ RGB (swap channels 0↔2)
 
