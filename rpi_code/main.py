@@ -14,12 +14,12 @@ def main():
         IMG  = os.path.join(BASE_DIR, "monitor_images")
         image_dirs = {
             "default":      os.path.join(IMG, "default.png"),
-            "classifying":  os.path.join(IMG, "classify.gif"),
-            "Plastic":      os.path.join(IMG, "plastic.jpeg"),
-            "Glass":        os.path.join(IMG, "glass.jpeg"),
-            "Metal":        os.path.join(IMG, "metal.jpeg"),
-            "Other":        os.path.join(IMG, "other.jpeg"),
-            "summary":      os.path.join(IMG, "summary.jpeg"),
+            "classifying":  os.path.join(IMG, "classifying.png"),
+            "Plastic":      os.path.join(IMG, "plastic.png"),
+            "Glass":        os.path.join(IMG, "glass.png"),
+            "Metal":        os.path.join(IMG, "metal.png"),
+            "Other":        os.path.join(IMG, "other.png"),
+            "summary":      os.path.join(IMG, "summary.png"),
         }
         monitor = MonitorManager(
             images_dir=image_dirs,
