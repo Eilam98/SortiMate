@@ -19,19 +19,21 @@ def main():
                 time.sleep(0.1)
             
             print("New item detected!")
-            predicted_label = identifier.capture_image()
+            predicted_label, confidence = identifier.capture_image()
 
-            if predicted_label == "Plastic":
+            if predicted_label == "Plastic" and confidence > 0.8:
                 waste_type = WasteType.PLASTIC
-            elif predicted_label == "Glass":
+            elif predicted_label == "Glass"  and confidence > 0.8:
                 waste_type = WasteType.GLASS
-            elif predicted_label == "Metal":
+            elif predicted_label == "Metal" and confidence > 0.8:
                 waste_type = WasteType.METAL
             else:
                 waste_type = WasteType.OTHER
 
             print(f"Sorting waste of type: {predicted_label}")
             sorter.sort_waste(waste_type)
+
+            identifier.upload_image_to_drive(predicted_label, confidence)
 
             # Wait until beam is restored before detecting the next object
             while laser_sensor.is_beam_broken():
