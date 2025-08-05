@@ -4,4 +4,7 @@ myenv/
 .DS_Store/
 temporary_images/
 .idea/
-*.pyc
+*.pyc/
+Waste_recognition/client_secrets.json/
+Waste_recognition/mycreds.txt/
+
