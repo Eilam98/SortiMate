@@ -7,6 +7,7 @@ import os
 def authenticate_drive():
     gauth = GoogleAuth()
 
+    # Needs to be change based on the location of the client_secrets.json file
     gauth.LoadClientConfigFile("C:/Users/user/Desktop/Project_SortiMate/SortiMate/rpi_code/Waste_recognition/client_secrets.json")
 
     # First time: opens browser for login
