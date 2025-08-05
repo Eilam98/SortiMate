@@ -35,21 +35,9 @@ class CameraManager:
         predicted_label = max(predictions, key=predictions.get)
         confidence = f"{predictions[predicted_label]:.4f}"
 
-        print("Predicted waste type:", predicted_label)
-        print("Predicted score:", predictions[predicted_label])
+        print("Predicted waste type: ", predicted_label)
+        print("Confidence: ", predictions[predicted_label])
 
-        # Save temporarily in memory
-        image = Image.fromarray(frame_rgb)
-        counter = self.get_and_increment_counter()
-        filename = f"{predicted_label}_{counter}_{confidence}.jpg"
-
-        # Use tempfile to store image just for upload
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
-            image.save(tmp_file.name)
-            upload_image(tmp_file.name, FOLDER_ID)
-            print(f"✅ Uploaded {filename} to Drive (temporary file deleted)")
-
-        # TO DELETE?
         im = Image.fromarray(frame_rgb)
         im.save(os.path.join(self.images_dir, "current_image.jpg"))
 
@@ -59,6 +47,10 @@ class CameraManager:
 
         # Load the image from RPI Camera2's memory
         image_path = os.path.join(self.images_dir, "current_image.jpg")
+        if not os.path.exists(image_path):
+            print("No image found to upload.")
+            return
+
         image = Image.open(image_path)
 
         counter = self.get_and_increment_counter()
@@ -68,7 +60,7 @@ class CameraManager:
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
             image.save(tmp_file.name)
             upload_image(tmp_file.name, FOLDER_ID)
-            print(f"✅ Uploaded {filename} to Drive (temporary file deleted)")
+            print(f"Uploaded {filename} to Google Drive")
 
     # Adding counter to make each image unique, and saving it to a file
     def get_and_increment_counter(self):

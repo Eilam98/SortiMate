@@ -31,6 +31,7 @@ def main():
                 waste_type = WasteType.OTHER
 
             print(f"Sorting waste of type: {predicted_label}")
+            print("With confidence: ", confidence, "\n")
             sorter.sort_waste(waste_type)
 
             identifier.upload_image_to_drive(predicted_label, confidence)
