@@ -10,16 +10,20 @@ class MonitorManager:
         self,
         images_dir: dict,
         window_size: tuple = (800, 600),
-        display: str = ":0.1",
+        display: str = ":0.0",
+        monitor_index: int = 1,
     ):
         """
         :param images_dir: mapping state_name -> single image/GIF file path
         :param window_size: (w, h) in pixels
-        :param display: X11 display for the second monitor
+        :param display: X11 display (always :0.0)
+        :param monitor_index: SDL video display index (0 → HDMI-1, 1 → HDMI-2)
         """
         os.environ["DISPLAY"] = display
+        os.environ["SDL_VIDEO_FULLSCREEN_DISPLAY"] = str(monitor_index)
         pygame.init()
-        self.screen = pygame.display.set_mode(window_size, flags=pygame.NOFRAME)
+        flags = pygame.FULLSCREEN | pygame.NOFRAME
+        self.screen = pygame.display.set_mode(window_size, flags=flags)
         pygame.display.set_caption("Recycling Bin Monitor")
 
         # load + scale each image/GIF once
