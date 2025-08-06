@@ -32,7 +32,7 @@ def upload_image(local_path, drive_folder_id):
     file.SetContentFile(local_path)
     file.Upload()
 
-    print(f" Uploaded: {local_path}")
+    print(f"Uploaded: {local_path}")
     print(f"File link: https://drive.google.com/file/d/{file['id']}/view")
 
 
