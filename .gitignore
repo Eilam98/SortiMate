@@ -5,6 +5,6 @@ myenv/
 temporary_images/
 .idea/
 *.pyc/
-Waste_recognition/client_secrets.json/
-Waste_recognition/mycreds.txt/
+client_secrets.json/
+mycreds.txt
 
