@@ -40,6 +40,14 @@ class CameraManager:
 
         return predicted_label
 
+    def _center_crop(pil_img, frac: float = 0.6):
+        """Keep a centered square fraction of the image (e.g., 0.6 = 60% of width/height)."""
+        w, h = pil_img.size
+        side = int(min(w, h) * frac)
+        left = (w - side) // 2
+        top = (h - side) // 2
+        return pil_img.crop((left, top, left + side, top + side))
+
     # For testing purposess only
     @staticmethod
     def classify_image_path(path: str) -> str:
@@ -58,6 +66,9 @@ class CameraManager:
         Bridge to your model. `waste_classification` should accept a PIL image
         (or numpy array) and return a label string like 'Plastic'/'Glass'/...
         """
+        pil_image = CameraManager._center_crop(pil_image, frac=0.6)
+        pil_image = pil_image.resize((224, 224))
+
         return waste_classification(np.array(pil_image))
 
     def __del__(self):
