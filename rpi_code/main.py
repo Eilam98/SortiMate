@@ -36,7 +36,7 @@ def main():
 
             identifier.upload_image_to_drive(predicted_label, confidence)
 
-            # Wait until beam is restored before detecting the next object
+            # Wait until the beam is restored before detecting the next object
             while laser_sensor.is_beam_broken():
                 time.sleep(0.1)
             
