@@ -1,16 +1,20 @@
 import time
 from sorting_mechanism import SortingMechanism, WasteType
 from Waste_recognition.CameraManager import CameraManager
+from Waste_recognition.Classifier import WasteClassifier
 import traceback
 from laser_sensor import LaserSensor
-
+from firebase_handler import FirebaseHandler
 
 def main():
     try:
+        firebase_handler = FirebaseHandler()
         sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
-        identifier = CameraManager()
+        camera = CameraManager()
+        classifier = WasteClassifier()
         laser_sensor = LaserSensor(laser_pin=23)
-        
+
+        bin_id = load_bin_id()
         print("Smart Recycling Bin initialized...")
         print("Waiting for object to enter the bin...")
 
@@ -19,7 +23,10 @@ def main():
                 time.sleep(0.1)
             
             print("New item detected!")
-            predicted_label = identifier.capture_image()
+            image = camera.capture_image()
+            predicted_label, confidence = classifier.waste_classification(image)
+            print("Predicted waste type:", predicted_label)
+            print("Predicted score:", confidence)
 
             if predicted_label == "Plastic":
                 waste_type = WasteType.PLASTIC
@@ -32,6 +39,15 @@ def main():
 
             print(f"Sorting waste of type: {predicted_label}")
             sorter.sort_waste(waste_type)
+
+            try:
+                firebase_handler.log_waste_event(
+                    bin_id=bin_id,
+                    waste_type=waste_type.name,
+                    confidence=confidence
+                )
+            except Exception as log_err:
+                print(f"Failed to log waste event: {log_err}")
 
             # Wait until beam is restored before detecting the next object
             while laser_sensor.is_beam_broken():
@@ -49,6 +65,17 @@ def main():
     finally:
         sorter.cleanup()
         laser_sensor.cleanup()
+
+def load_bin_id(path="/home/pi/creds/bin_id.txt"):
+    try:
+        with open(path, "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        print(f"An error occurred with getting bin ID, Bin ID file not found at {path}")
+        traceback.print_exc()
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

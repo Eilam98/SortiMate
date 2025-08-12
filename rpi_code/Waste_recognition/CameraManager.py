@@ -3,7 +3,6 @@ from pathlib import Path
 import time
 import numpy as np
 from PIL import Image
-from .Classifier import waste_classification
 from picamera2 import Picamera2
 
 class CameraManager:
@@ -25,19 +24,11 @@ class CameraManager:
         frame_bgr = self.picam2.capture_array("main") # Grab the frame – it comes out BGR
         frame_rgb = frame_bgr[..., ::-1] # Convert BGR ➜ RGB (swap channels 0↔2)
 
-        # Run the frame through the waste classifier
-        predictions = waste_classification(frame_rgb)
-        print("im here after the classifier")
-        predicted_label = max(predictions, key=predictions.get)
-
-        print("Predicted waste type:", predicted_label)
-        print("Predicted score:", predictions[predicted_label])
-
         # TO DELETE?
         im = Image.fromarray(frame_rgb)
         im.save(os.path.join(self.images_dir, "current_image.jpg"))
 
-        return predicted_label, predictions[predicted_label]
+        return frame_rgb
 
     def __del__(self):
         # Stop the camera preview before exiting
