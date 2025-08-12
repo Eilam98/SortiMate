@@ -6,7 +6,7 @@ from Waste_recognition.CameraManager import CameraManager
 import traceback
 
 
-# from laser_sensor import LaserSensor
+# from laser_sensor import LaserSensors
 
 
 def label_to_waste_type(label: str) -> WasteType:
