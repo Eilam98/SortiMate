@@ -39,6 +39,11 @@ class CameraManager:
 
         return predicted_label
 
+    # For testing purposes only
+    def classify_image_path(self, path: str) -> str:
+        img = Image.open(path).convert("RGB")
+        return self._classify_pil(img)  # whatever your internal classify call is
+
     def __del__(self):
         # Stop the camera preview before exiting
         self.picam2.stop_preview()
