@@ -9,18 +9,18 @@ from firebase_handler import FirebaseHandler
 def main():
     try:
         firebase_handler = FirebaseHandler()
-        sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
+        #sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         camera = CameraManager()
         classifier = WasteClassifier()
-        laser_sensor = LaserSensor(laser_pin=23)
+        #laser_sensor = LaserSensor(laser_pin=23)
 
         bin_id = load_bin_id()
         print("Smart Recycling Bin initialized...")
         print("Waiting for object to enter the bin...")
 
         while True:
-            while not laser_sensor.is_beam_broken():
-                time.sleep(0.1)
+            #while not laser_sensor.is_beam_broken():
+            #    time.sleep(0.1)
             
             print("New item detected!")
             image = camera.capture_image()
@@ -37,23 +37,25 @@ def main():
             else:
                 waste_type = WasteType.OTHER
 
-            print(f"Sorting waste of type: {predicted_label}")
-            sorter.sort_waste(waste_type)
+            #print(f"Sorting waste of type: {predicted_label}")
+            #sorter.sort_waste(waste_type)
 
             try:
-                firebase_handler.log_waste_event(
+                waste_event_id = firebase_handler.log_waste_event(
                     bin_id=bin_id,
                     waste_type=waste_type.name,
                     confidence=confidence
                 )
+                print(f"Waste event logged with ID: {waste_event_id}") 
             except Exception as log_err:
                 print(f"Failed to log waste event: {log_err}")
 
             # Wait until beam is restored before detecting the next object
-            while laser_sensor.is_beam_broken():
-                time.sleep(0.1)
+            #while laser_sensor.is_beam_broken():
+            #    time.sleep(0.1)
             
             print("Item sorted. Waiting for the next item...")
+            break #TO DELETE
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -63,8 +65,9 @@ def main():
         traceback.print_exc()
 
     finally:
-        sorter.cleanup()
-        laser_sensor.cleanup()
+        print("END") #TO DELETE
+        #sorter.cleanup()
+        #laser_sensor.cleanup()
 
 def load_bin_id(path="/home/pi/creds/bin_id.txt"):
     try:
