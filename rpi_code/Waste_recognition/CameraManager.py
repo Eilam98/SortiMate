@@ -58,7 +58,7 @@ class CameraManager:
         Bridge to your model. `waste_classification` should accept a PIL image
         (or numpy array) and return a label string like 'Plastic'/'Glass'/...
         """
-        return waste_classification(pil_image)
+        return waste_classification(np.array(pil_image))
 
     def __del__(self):
         # Stop the camera preview before exiting
