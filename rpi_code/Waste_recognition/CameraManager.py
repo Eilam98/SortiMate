@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import time
 import numpy as np
 from PIL import Image
 from .Classifier import waste_classification
@@ -10,23 +11,22 @@ class CameraManager:
         # Initialize and configure for still capture
         self.picam2 = Picamera2()
         self.picam2.configure(self.picam2.create_still_configuration(
-            main={"format": "RGB888", "size": self.picam2.sensor_resolution} # TO EDIT: size and format
+            main={"format": "RGB888", "size": (640, 480)} # TO EDIT: size and format
         ))
         self.picam2.start()
         
         #TO DELETE?
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.images_dir = os.path.join(base_dir, "temporary_images")
-        os.makedirs(images_dir, exist_ok=True)
+        os.makedirs(self.images_dir, exist_ok=True)
 
     def capture_image(self):
-        # Capture the current frame as a NumPy array
-        frame = self.picam2.capture_array()
-        print("im here after capture_array")
-        # If desired, you can save the image using Pillow:
-        print("im here after save in frame")
+        time.sleep(0.2)  # Let the camera adjust exposure
+        frame_bgr = self.picam2.capture_array("main") # Grab the frame – it comes out BGR
+        frame_rgb = frame_bgr[..., ::-1] # Convert BGR ➜ RGB (swap channels 0↔2)
+
         # Run the frame through the waste classifier
-        predictions = waste_classification(frame)
+        predictions = waste_classification(frame_rgb)
         print("im here after the classifier")
         predicted_label = max(predictions, key=predictions.get)
 
@@ -34,8 +34,8 @@ class CameraManager:
         print("Predicted score:", predictions[predicted_label])
 
         # TO DELETE?
-        im = Image.fromarray(frame)
-        im.save(os.path.join(temp_dir, "current_image.jpg"))
+        im = Image.fromarray(frame_rgb)
+        im.save(os.path.join(self.images_dir, "current_image.jpg"))
 
         return predicted_label, predictions[predicted_label]
 

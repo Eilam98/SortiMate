@@ -3,81 +3,41 @@ from sorting_mechanism import SortingMechanism, WasteType
 from Waste_recognition.CameraManager import CameraManager
 import traceback
 from laser_sensor import LaserSensor
-from firebase_handler import log_waste_event, update_bin_status, create_alert
+
 
 def main():
     try:
-        sorter = SortingMechanism(rotation_pin=27,
-                                  gate_pin=22)  # TO EDIT: GPIO17 for rotation servo, GPIO27 for gate servo
+        sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         identifier = CameraManager()
-        laser_sensor = LaserSensor(laser_pin=23, receiver_pin=24)  # needs to set based on the GPIO pins
+        laser_sensor = LaserSensor(laser_pin=23)
+        
         print("Smart Recycling Bin initialized...")
+        print("Waiting for object to enter the bin...")
 
-        print("Type 'c' (then press Enter) to capture an image for classification.")
-        print("Type 'q' (then Enter) to exit the program.")
-
-        bin_id = "bin_001"
-        user_id = "default_user"  # Replace with actual user_id logic if available
         while True:
-            # laser_sensor.wait_for_beam_break()
+            while not laser_sensor.is_beam_broken():
+                time.sleep(0.1)
+            
+            print("New item detected!")
+            predicted_label = identifier.capture_image()
 
-            start_time = time.time()
-            try:
-                predicted_label, confidence = identifier.capture_image()
-                latency_ms = int((time.time() - start_time) * 1000)
+            if predicted_label == "Plastic":
+                waste_type = WasteType.PLASTIC
+            elif predicted_label == "Glass":
+                waste_type = WasteType.GLASS
+            elif predicted_label == "Metal":
+                waste_type = WasteType.METAL
+            else:
+                waste_type = WasteType.OTHER
 
-                if predicted_label == "Plastic":
-                    waste_type = WasteType.PLASTIC
-                elif predicted_label == "Glass":
-                    waste_type = WasteType.GLASS
-                elif predicted_label == "Metal":
-                    waste_type = WasteType.METAL
-                else:
-                    waste_type = WasteType.OTHER
-
-                print(f"Sorting waste of type: {predicted_label}")
-                sorter.sort_waste(waste_type)
-
-                # Log waste event
-                log_waste_event(
-                    bin_id=bin_id,
-                    waste_type=waste_type.name,  # Use enum name as string
-                    user_id=user_id,
-                    latency_ms=latency_ms,
-                    confidence=confidence
-                )
-
-                # Update bin status (add more fields as needed)
-                update_bin_status(
-                    bin_id=bin_id
-                )
-
-                # Create alert if needed (example: low confidence)
-                if confidence is not None and confidence < 0.5:
-                    create_alert(
-                        bin_id=bin_id,
-                        message=f"Low confidence in waste classification: {predicted_label} ({confidence:.2f})",
-                        alert_type="low_confidence"
-                    )
-
-            except Exception as e:
-                print(f"Error during waste processing: {e}")
-                log_waste_event(
-                    bin_id=bin_id,
-                    waste_type="UNKNOWN",
-                    user_id=user_id,
-                    is_error=True,
-                    error_message=str(e)
-                )
-                create_alert(
-                    bin_id=bin_id,
-                    message=f"Error: {str(e)}",
-                    alert_type="system_error"
-                )
+            print(f"Sorting waste of type: {predicted_label}")
+            sorter.sort_waste(waste_type)
 
             # Wait until beam is restored before detecting the next object
-            #while laser_sensor.is_beam_broken():
-            #    time.sleep(0.1)
+            while laser_sensor.is_beam_broken():
+                time.sleep(0.1)
+            
+            print("Item sorted. Waiting for the next item...")
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -88,7 +48,8 @@ def main():
 
     finally:
         sorter.cleanup()
-     #   laser_sensor.cleanup()
+        laser_sensor.cleanup()
+
 
 if __name__ == "__main__":
     main()
