@@ -4,13 +4,13 @@ import uuid
 
 import firebase_admin
 from firebase_admin import credentials, firestore as admin_fs
-from google.api_core.retry import Retry
+from google.api_core import retry as g_retry
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
 # ---- Helper retry (handles transient network hiccups on the RPi) ----
-_WRITE_RETRY = Retry(
+_WRITE_RETRY = g_retry.Retry(
     initial=0.2, maximum=5.0, multiplier=2.0, deadline=20.0,
-    predicate=Retry.if_exception_type(Exception)
+    predicate=g_retry.if_exception_type(Exception)
 )
 
 class FirebaseHandler:
@@ -41,16 +41,11 @@ class FirebaseHandler:
     @_WRITE_RETRY
     def add_document(self, collection, data):
         filtered_data = {field_name: field_value for field_name, field_value in data.items() if field_value is not None}
-        ref = self.db.collection(collection).add(filtered_data)[1]
-        return ref.id
+        doc_ref, _write_time = self.db.collection(collection).add(filtered_data)
+        return doc_ref.id
 
     # ---------- Your domain methods ----------
-    def log_waste_event(
-        self,
-        bin_id,
-        waste_type,
-        confidence=None
-    ):
+    def log_waste_event(self, bin_id, waste_type, confidence=None):
         """
         Log a waste event to 'waste_events' (returns event_id).
         """
@@ -65,11 +60,7 @@ class FirebaseHandler:
         self.set_document("waste_events", event_id, event_data, merge=False)
         return event_id
 
-    def update_bin_status(
-        self,
-        bin_id,
-        status
-    ):
+    def update_bin_status(self, bin_id, status):
         """
         Upsert a bin in 'bins' with last_update set server-side.
         """
