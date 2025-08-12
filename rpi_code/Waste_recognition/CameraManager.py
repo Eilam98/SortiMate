@@ -41,7 +41,7 @@ class CameraManager:
 
     # For testing purposess only
     @staticmethod
-    def classify_image_path(self, path: str) -> str:
+    def classify_image_path(path: str) -> str:
         img = Image.open(path).convert("RGB")
         return CameraManager._infer_from_pil(img)  # whatever your internal classify call is
 

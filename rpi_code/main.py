@@ -22,7 +22,7 @@ def label_to_waste_type(label: str) -> WasteType:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--test-image", help="Classify a single image file and exit (e.g. /home/pi/test.jpg)")
+    parser.add_argument("--test-image", help="Classify a single image file and exit (e.g. ~/test.jpg)")
     parser.add_argument("--dry-run-sort", action="store_true",
                         help="In test mode, don't actuate motors—just print the result")
     args = parser.parse_args()
