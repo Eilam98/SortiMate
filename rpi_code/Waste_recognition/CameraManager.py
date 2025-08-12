@@ -67,7 +67,7 @@ class CameraManager:
         Bridge to your model. `waste_classification` should accept a PIL image
         (or numpy array) and return a label string like 'Plastic'/'Glass'/...
         """
-        pil_image = CameraManager._center_crop(pil_image, frac=0.6)
+        # pil_image = CameraManager._center_crop(pil_image, frac=0.6)
         # pil_image = pil_image.resize((224, 224))
 
         return waste_classification(np.array(pil_image))
