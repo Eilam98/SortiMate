@@ -41,7 +41,8 @@ class CameraManager:
         return predicted_label
 
     def _center_crop(pil_img, frac: float = 0.6):
-        """Keep a centered square fraction of the image (e.g., 0.6 = 60% of width/height)."""
+        """Keep a centered square fraction of the image (0<frac<=1). Smaller = more zoom."""
+        frac = max(0.1, min(1.0, float(frac)))  # clamp
         w, h = pil_img.size
         side = int(min(w, h) * frac)
         left = (w - side) // 2
