@@ -42,7 +42,7 @@ class CameraManager:
     # For testing purposess only
     def classify_image_path(self, path: str) -> str:
         img = Image.open(path).convert("RGB")
-        return self._classify_pil(img)  # whatever your internal classify call is
+        return CameraManager._infer_from_pil(img)  # whatever your internal classify call is
 
     def __del__(self):
         # Stop the camera preview before exiting

@@ -31,23 +31,13 @@ def main():
     # laser_sensor = None
 
     try:
-        # identifier = CameraManager()
-
-        # ---------- Test mode: classify a file and exit ----------
+        # ---------- Test mode: classify a file WITHOUT initializing the camera ----------
         if args.test_image:
             print(f"[TEST MODE] Classifying file: {args.test_image}")
-
-            # Prefer a dedicated method if your CameraManager has one:
-            #   predicted_label = identifier.classify_image_path(args.test_image)
-            #
-            # If not, and capture_image() can’t take a path, add a helper in CameraManager
-            # or temporarily expose one. For now, we'll assume you have:
-            #   classify_image_path(path) -> returns label string
-            predicted_label = identifier.classify_image_path(args.test_image)
-
+            # Make classify_image_path a @staticmethod or a separate function that doesn't init the camera
+            predicted_label = CameraManager.classify_image_path(args.test_image)
             waste_type = label_to_waste_type(predicted_label)
-            print(f"Predicted: {predicted_label}  ->  WasteType: {waste_type.name}")
-
+            print(f"Predicted: {predicted_label} -> WasteType: {waste_type.name}")
             return
 
     except KeyboardInterrupt:
