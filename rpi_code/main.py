@@ -35,9 +35,12 @@ def main():
         if args.test_image:
             print(f"[TEST MODE] Classifying file: {args.test_image}")
             # Make classify_image_path a @staticmethod or a separate function that doesn't init the camera
-            predicted_label = CameraManager.classify_image_path(args.test_image)
-            waste_type = label_to_waste_type(predicted_label)
-            print(f"Predicted: {predicted_label} -> WasteType: {waste_type.name}")
+            predicted_labels = CameraManager.classify_image_path(args.test_image)
+            best_label = max(predicted_labels, key=predicted_labels.get)
+            confidence = predicted_labels[best_label]
+            print(f"Predicted: {predicted_labels}")
+            waste_type = label_to_waste_type(best_label)
+            print(f"WasteType: {waste_type}, Confidence: {confidence}")
             return
 
     except KeyboardInterrupt:
