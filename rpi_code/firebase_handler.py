@@ -1,97 +1,135 @@
-import firebase_admin
-from firebase_admin import credentials, firestore
-import datetime
+# firebase_handler.py
+import os
 import uuid
-from typing import Optional, Dict, Any
 
-cred = credentials.Certificate("sortimate_firebase_key.json")
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
-db = firestore.client()
+import firebase_admin
+from firebase_admin import credentials, firestore as admin_fs
+from google.api_core.retry import Retry
+from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
-def log_waste_event(
-    bin_id: str,
-    waste_type: str,
-    raw_image_path: Optional[str] = None,
-    user_id: Optional[str] = None,
-    is_error: bool = False,
-    error_message: Optional[str] = None,
-    latency_ms: Optional[int] = None,
-    confidence: Optional[float] = None
-) -> None:
-    """
-    Log a waste event to the 'waste_events' collection.
-    """
-    event_id = str(uuid.uuid4())
-    event_data: Dict[str, Any] = {
-        "event_id": event_id,
-        "bin_id": bin_id,
-        "timestamp": datetime.datetime.now(),
-        "waste_type": waste_type,
-        "raw_image_path": raw_image_path,
-        "user_id": user_id,
-        "is_error": is_error,
-        "error_message": error_message,
-        "latency_ms": latency_ms,
-        "confidence": confidence
-    }
-    # Remove None values
-    event_data = {k: v for k, v in event_data.items() if v is not None}
-    try:
-        db.collection("waste_events").document(event_id).set(event_data)
-    except Exception as e:
-        print(f"Failed to log waste event: {e}")
+# ---- Helper retry (handles transient network hiccups on the RPi) ----
+_WRITE_RETRY = Retry(
+    initial=0.2, maximum=5.0, multiplier=2.0, deadline=20.0,
+    predicate=Retry.if_exception_type(Exception)
+)
 
-def update_bin_status(
-    bin_id: str,
-    location: Optional[str] = None,
-    alerts: Optional[Dict[str, bool]] = None,
-    capacity: Optional[Dict[str, Any]] = None,
-    notes: Optional[str] = None
-) -> None:
-    """
-    Update the status of a bin in the 'bins' collection.
-    """
-    bin_ref = db.collection("bins").document(bin_id)
-    updates: Dict[str, Any] = {
-        "last_update": datetime.datetime.now()
-    }
-    if location:
-        updates["location"] = location
-    if alerts:
-        updates["alerts"] = alerts
-    if capacity:
-        updates["capacity"] = capacity
-    if notes:
-        updates["notes"] = notes
-    try:
-        bin_ref.set(updates, merge=True)
-    except Exception as e:
-        print(f"Failed to update bin status: {e}")
+class FirebaseHandler:
+    def __init__(self, service_account_path="/home/pi/creds/sortimate_firebase_key.json", app_name="SortiMate"):
+        """
+        Initialize Firebase Admin SDK and Firestore client.
 
-def create_alert(
-    bin_id: str,
-    message: str,
-    alert_type: str,
-    resolved: bool = False
-) -> None:
-    """
-    Create an alert in the 'alerts' collection.
-    """
-    alert_data = {
-        "bin_id": bin_id,
-        "created_at": datetime.datetime.now(),
-        "message": message,
-        "resolved": resolved,
-        "type": alert_type
-    }
-    try:
-        db.collection("alerts").add(alert_data)
-    except Exception as e:
-        print(f"Failed to create alert: {e}")
+        If service_account_path is None, uses GOOGLE_APPLICATION_CREDENTIALS env var.
+        """
+        
+        cred_obj = credentials.Certificate(service_account_path)
 
-if __name__ == "__main__":
-    log_waste_event(bin_id="bin_001",waste_type="plastic",user_id="20994208",latency_ms=500, confidence=0.5)
+        # Initialize app once (safe on re-import or long-running processes)
+        try:
+            self.app = firebase_admin.get_app(app_name)
+        except ValueError:
+            self.app = firebase_admin.initialize_app(cred_obj, name=app_name)
 
+        self.db = admin_fs.client(app=self.app)
+        self._listeners = []  # keep references to stop them later
 
+    # ---------- Basic create/update helpers ----------
+    @_WRITE_RETRY
+    def set_document(self, collection, doc_id, data, merge=True):
+        filtered_data = {field_name: field_value for field_name, field_value in data.items() if field_value is not None}
+        self.db.collection(collection).document(doc_id).set(filtered_data, merge=merge)
 
+    @_WRITE_RETRY
+    def add_document(self, collection, data):
+        filtered_data = {field_name: field_value for field_name, field_value in data.items() if field_value is not None}
+        ref = self.db.collection(collection).add(filtered_data)[1]
+        return ref.id
+
+    # ---------- Your domain methods ----------
+    def log_waste_event(
+        self,
+        bin_id,
+        waste_type,
+        confidence=None
+    ):
+        """
+        Log a waste event to 'waste_events' (returns event_id).
+        """
+        event_id = str(uuid.uuid4())
+        event_data = {
+            "event_id": event_id,
+            "bin_id": bin_id,
+            "timestamp": SERVER_TIMESTAMP,
+            "waste_type": waste_type,
+            "confidence": confidence,
+        }
+        self.set_document("waste_events", event_id, event_data, merge=False)
+        return event_id
+
+    def update_bin_status(
+        self,
+        bin_id,
+        status
+    ):
+        """
+        Upsert a bin in 'bins' with last_update set server-side.
+        """
+        updates = {
+            "last_update": SERVER_TIMESTAMP,
+            "status": status,
+        }
+        self.set_document("bins", bin_id, updates, merge=True)
+    
+    # ---------- Realtime listeners ----------
+    def listen_to_collection(
+        self,
+        collection_path,
+        on_added=None,
+        on_modified=None,
+        on_removed=None,
+        filters=None,
+    ):
+        """
+        Attach a realtime listener to a collection with optional simple filters.
+        Each change will call the respective callback with the DocumentSnapshot.
+
+        Returns a function to stop the listener.
+        """
+        query = self.db.collection(collection_path)
+        if filters:
+            for f in filters:
+                if len(f) == 3:
+                    field, op, value = f
+                    query = query.where(field, op, value)
+
+        def _on_snapshot(col_snapshot, changes, read_time):
+            # Robust: if callbacks error, don't kill the stream
+            for change in changes:
+                try:
+                    if change.type.name == "ADDED" and on_added:
+                        on_added(change.document)
+                    elif change.type.name == "MODIFIED" and on_modified:
+                        on_modified(change.document)
+                    elif change.type.name == "REMOVED" and on_removed:
+                        on_removed(change.document)
+                except Exception as e:
+                    print(f"[Listener error] {e}")
+
+        watch = query.on_snapshot(_on_snapshot)
+        self._listeners.append(watch)
+
+        def stop():
+            try:
+                watch.unsubscribe()
+                self._listeners.remove(watch)
+            except Exception:
+                pass
+
+        return stop
+
+    def stop_all_listeners(self):
+        for w in list(self._listeners):
+            try:
+                w.unsubscribe()
+            except Exception:
+                pass
+        self._listeners.clear()
