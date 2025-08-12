@@ -31,7 +31,7 @@ def main():
     # laser_sensor = None
 
     try:
-        identifier = CameraManager()
+        # identifier = CameraManager()
 
         # ---------- Test mode: classify a file and exit ----------
         if args.test_image:
