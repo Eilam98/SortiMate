@@ -1,47 +1,113 @@
-# import time
-import argparse  # For test mode
-# import traceback  # For error handling and testing
+import time
 from sorting_mechanism import SortingMechanism, WasteType
 from Waste_recognition.CameraManager import CameraManager
+from Waste_recognition.Classifier import WasteClassifier
 import traceback
+from laser_sensor import LaserSensor
+from firebase_handler import FirebaseHandler
 
+# Constants
+CLASSIFICATION_THRESHOLD = 0.8
+TIME_OUT_USER_ANSWER = 30
 
-# from laser_sensor import LaserSensors
-
-
-def label_to_waste_type(label: str) -> WasteType:
-    if label == "Plastic":
-        return WasteType.PLASTIC
-    elif label == "Glass":
-        return WasteType.GLASS
-    elif label == "Metal":
-        return WasteType.METAL
-    else:
-        return WasteType.OTHER
-
+# global variables
+user_answered = False
+user_choice = None
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--test-image", help="Classify a single image file and exit (e.g. ~/test2.jpg)")
-    parser.add_argument("--dry-run-sort", action="store_true",
-                        help="In test mode, don't actuate motors—just print the result")
-    args = parser.parse_args()
-
-    # sorter = None
-    # laser_sensor = None
-
     try:
-        # ---------- Test mode: classify a file WITHOUT initializing the camera ----------
-        if args.test_image:
-            print(f"[TEST MODE] Classifying file: {args.test_image}")
-            # Make classify_image_path a @staticmethod or a separate function that doesn't init the camera
-            predicted_labels = CameraManager.classify_image_path(args.test_image)
-            best_label = max(predicted_labels, key=predicted_labels.get)
-            confidence = predicted_labels[best_label]
-            print(f"Predicted: {predicted_labels}")
-            waste_type = label_to_waste_type(best_label)
-            print(f"WasteType: {waste_type}, Confidence: {confidence}")
-            return
+        global user_answered, user_choice
+        firebase_handler = FirebaseHandler()
+        #sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
+        camera = CameraManager()
+        classifier = WasteClassifier()
+        #laser_sensor = LaserSensor(laser_pin=23)
+
+        bin_id = load_bin_id()
+        print("Smart Recycling Bin initialized...")
+        print("Waiting for object to enter the bin...")
+
+        while True:
+            #while not laser_sensor.is_beam_broken():
+            #    time.sleep(0.1)
+            
+            print("New item detected!")
+            image = camera.capture_image()
+            predicted_label, confidence = classifier.waste_classification(image)
+            real_predicted_label = predicted_label
+            if predicted_label not in ["Plastic", "Glass", "Metal"]:
+                predicted_label = "Other"
+            print("Predicted waste type:", predicted_label)
+            print("Predicted score:", confidence)
+
+            if confidence > CLASSIFICATION_THRESHOLD and predicted_label != "Other":
+                if predicted_label == "Plastic":
+                    waste_type = WasteType.PLASTIC
+                elif predicted_label == "Glass":
+                    waste_type = WasteType.GLASS
+                elif predicted_label == "Metal":
+                    waste_type = WasteType.METAL
+            else:
+                waste_type = WasteType.OTHER
+                image_drive_link = camera.upload_image_to_drive(bin_id, real_predicted_label, confidence)
+                wrong_event_id = firebase_handler.log_wrong_classification(
+                    bin_id=bin_id,
+                    real_waste_type=real_predicted_label,
+                    confidence=confidence,
+                    image_drive_url=image_drive_link
+                )
+                user_answered = False
+                user_choice = None
+
+                # Start a focused listener for THIS item only
+                def _on_answered(doc):
+                    global user_answered, user_choice
+                    data = doc.to_dict() or {}
+                    user_choice = data.get("user_classified_type")
+                    user_answered = True
+                    print(f"User answered: {user_choice}")
+
+                stop_listener = firebase_handler.listen_for_wrong_classification_answer(
+                    wrong_event_id, on_answered=_on_answered
+                )
+
+                # Wait (with timeout) for the user's answer
+                start_wait = time.time()
+                try:
+                    while not user_answered and time.time() - start_wait < TIME_OUT_USER_ANSWER:
+                        time.sleep(0.1)
+                finally:
+                    # Make sure we always stop the stream
+                    try:
+                        stop_listener()
+                    except Exception:
+                        pass
+
+                # If the user answered in time, override waste_type
+                if user_answered:
+                    waste_type = WasteType[user_choice.upper()]
+                else:
+                    print("No user answer within timeout; keeping OTHER")
+            
+            #print(f"Sorting waste of type: {predicted_label}")
+            #sorter.sort_waste(waste_type)
+
+            try:
+                waste_event_id = firebase_handler.log_waste_event(
+                    bin_id=bin_id,
+                    waste_type=waste_type.name,
+                    confidence=confidence
+                )
+                print(f"Waste event logged with ID: {waste_event_id}") 
+            except Exception as log_err:
+                print(f"Failed to log waste event: {log_err}")
+
+            # Wait until beam is restored before detecting the next object
+            #while laser_sensor.is_beam_broken():
+            #    time.sleep(0.1)
+            
+            print("Item sorted. Waiting for the next item...")
+            break #TO DELETE
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -49,60 +115,23 @@ def main():
     except Exception as e:
         print(f"An error occurred: {e}")
         traceback.print_exc()
-    # ---------- End test mode ----------
+
+    finally:
+        print("END") #TO DELETE
+        #sorter.cleanup()
+        #laser_sensor.cleanup()
+
+def load_bin_id(path="/home/pi/creds/bin_id.txt"):
+    try:
+        with open(path, "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        print(f"An error occurred with getting bin ID, Bin ID file not found at {path}")
+        traceback.print_exc()
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
     main()
-
-# def main():
-#     try:
-#         sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
-#         identifier = CameraManager()
-#         laser_sensor = LaserSensor(laser_pin=23)
-#
-#         print("Smart Recycling Bin initialized...")
-#         print("Waiting for object to enter the bin...")
-#
-#         while True:
-#             while not laser_sensor.is_beam_broken():
-#                 time.sleep(0.1)
-#
-#             print("New item detected!")
-#             predicted_label = identifier.capture_image()
-#
-#             if predicted_label == "Plastic":
-#                 waste_type = WasteType.PLASTIC
-#             elif predicted_label == "Glass":
-#                 waste_type = WasteType.GLASS
-#             elif predicted_label == "Metal":
-#                 waste_type = WasteType.METAL
-#             else:
-#                 waste_type = WasteType.OTHER
-#
-#             print(f"Sorting waste of type: {predicted_label}")
-#             sorter.sort_waste(waste_type)
-#
-#             # Wait until beam is restored before detecting the next object
-#             while laser_sensor.is_beam_broken():
-#                 time.sleep(0.1)
-#
-#             print("Item sorted. Waiting for the next item...")
-#
-#     except KeyboardInterrupt:
-#         print("\nProgram interrupted by user")
-#
-#     except Exception as e:
-#         print(f"An error occurred: {e}")
-#         traceback.print_exc()
-#
-#     finally:
-#         sorter.cleanup()
-#         laser_sensor.cleanup()
-#
-#
-#
-#
-#
-# if __name__ == "__main__":
-#     main()
