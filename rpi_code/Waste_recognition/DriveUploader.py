@@ -3,45 +3,47 @@ from pydrive.drive import GoogleDrive
 import os
 
 
-# Authenticate and create PyDrive client
-def authenticate_drive():
-    gauth = GoogleAuth()
+class DriveUploader:
+    def __init__(self,
+                 client_secrets_path="/home/pi/creds/client_secrets.json",
+                 creds_path="/home/pi/creds/mycreds.txt",
+                 folder_id = "1GKUtFs8hD5F1LySlFQFir3lY7IUDDKCA"
+):
+        self.client_secrets_path = client_secrets_path
+        self.creds_path = creds_path
+        self.gauth = None
+        self.drive = None
+        self.folder_id = folder_id
+        self.authenticate()
 
-    # Needs to be change based on the location of the client_secrets.json file
-    gauth.LoadClientConfigFile("C:/Users/user/Desktop/Project_SortiMate/SortiMate/rpi_code/Waste_recognition/client_secrets.json")
+    def authenticate(self):
+        """Authenticate with Google and create a GoogleDrive client (same flow as your script)."""
+        self.gauth = GoogleAuth()
+        # Needs to be changed based on the location of the client_secrets.json file
+        self.gauth.LoadClientConfigFile(self.client_secrets_path)
 
-    # First time: opens browser for login
-    gauth.LocalWebserverAuth()
+        # First time: opens browser for login
+        self.gauth.LocalWebserverAuth()
 
-    # Save credentials to avoid logging in every time
-    gauth.SaveCredentialsFile("mycreds.txt")
+        # Save credentials to avoid logging in every time
+        self.gauth.SaveCredentialsFile(self.creds_path)
 
-    drive = GoogleDrive(gauth)
-    return drive
+        self.drive = GoogleDrive(self.gauth)
+        return self.drive
 
+    def upload_image(self, local_path):
+        """Upload a file to the specified Drive folder. Returns the file ID."""
+        if self.drive is None:
+            self.authenticate()
 
-# Upload file to a specific folder
-def upload_image(local_path, drive_folder_id):
-    drive = authenticate_drive()
+        # Create and upload file
+        file = self.drive.CreateFile({
+            "title": os.path.basename(local_path),
+            "parents": [{"id": self.folder_id}]
+        })
+        file.SetContentFile(local_path)
+        file.Upload()
 
-    # Create and upload file
-    file = drive.CreateFile({
-        "title": os.path.basename(local_path),
-        "parents": [{"id": drive_folder_id}]
-    })
-    file.SetContentFile(local_path)
-    file.Upload()
-
-    print(f"Uploaded: {local_path}")
-    print(f"File link: https://drive.google.com/file/d/{file['id']}/view")
-
-
-# Example usage
-if __name__ == "__main__":
-    # Replace this with your real folder ID from Google Drive
-    folder_id = "1GKUtFs8hD5F1LySlFQFir3lY7IUDDKCA"
-
-    # Example image path to upload
-    image_path = "C:/Users/user/Downloads/4804-0001.jpg"
-
-    upload_image(image_path, folder_id)
+        print(f"Uploaded: {local_path}")
+        print(f"File link: https://drive.google.com/file/d/{file['id']}/view")
+        return file["id"]

@@ -4,11 +4,8 @@ import numpy as np
 from PIL import Image
 from .Classifier import waste_classification
 from picamera2 import Picamera2
-from .DriveUploader import upload_image
+import DriveUploader
 import tempfile
-
-FOLDER_ID = "1GKUtFs8hD5F1LySlFQFir3lY7IUDDKCA"
-
 
 class CameraManager:
     def __init__(self):
@@ -18,6 +15,8 @@ class CameraManager:
             main={"format": "RGB888", "size": (640, 480)}  # TO EDIT: size and format
         ))
         self.picam2.start()
+
+        self.drive_manager = DriveUploader.DriveUploader()
 
         # TO DELETE?
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,8 +42,7 @@ class CameraManager:
 
         return predicted_label, confidence
 
-    def upload_image_to_drive(self, predicted_label, confidence):
-
+    def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
         # Load the image from RPI Camera2's memory
         image_path = os.path.join(self.images_dir, "current_image.jpg")
         if not os.path.exists(image_path):
@@ -52,35 +50,13 @@ class CameraManager:
             return
 
         image = Image.open(image_path)
-
-        counter = self.get_and_increment_counter()
-        filename = f"{predicted_label}_{counter}_{confidence}.jpg"
+        filename = f"{bin_id}_{predicted_label}_{confidence}_{timestamp}.jpg"
 
         # Use tempfile to store image just for upload
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
             image.save(tmp_file.name)
-            upload_image(tmp_file.name, FOLDER_ID)
+            self.drive_manager.upload_image(tmp_file.name)
             print(f"Uploaded {filename} to Google Drive")
-
-    # Adding counter to make each image unique, and saving it to a file
-    def get_and_increment_counter(self):
-        counter_file = "image_counter.txt"
-
-        # If file doesn't exist, start at 0
-        if not os.path.exists(counter_file):
-            with open(counter_file, "w") as f:
-                f.write("0")
-
-        # Read current counter
-        with open(counter_file, "r") as f:
-            counter = int(f.read().strip())
-
-        # Increment and save
-        counter += 1
-        with open(counter_file, "w") as f:
-            f.write(str(counter))
-
-        return counter
 
     def __del__(self):
         # Stop the camera preview before exiting
