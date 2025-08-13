@@ -60,6 +60,20 @@ class FirebaseHandler:
         self.set_document("waste_events", event_id, event_data, merge=False)
         return event_id
 
+    def log_wrong_classification(self, bin_id, real_waste_type, confidence, image_drive_url):
+        event_id = str(uuid.uuid4())
+        event_data = {
+            "event_id": event_id,
+            "bin_id": bin_id,
+            "timestamp": SERVER_TIMESTAMP,
+            "model_classification_waste_type": real_waste_type,
+            "confidence": confidence,
+            "image_drive_url": image_drive_url,
+            "reviewed": False
+        }
+        self.set_document("wrong_classification", event_id, event_data, merge=False)
+        return event_id
+
     def update_bin_status(self, bin_id, status):
         """
         Upsert a bin in 'bins' with last_update set server-side.
@@ -124,3 +138,25 @@ class FirebaseHandler:
             except Exception:
                 pass
         self._listeners.clear()
+
+    def listen_for_wrong_classification_answer(self, event_id, on_answered):
+        """
+        Start a listener for a single wrong_classifications item.
+        Calls on_answered(doc_snapshot) once when user_answered becomes True.
+        Returns a stop() function you must call to unsubscribe.
+        """
+        def _on_mod(doc):
+            data = doc.to_dict() or {}
+            if data.get("user_answered") is True:
+                try:
+                    on_answered(doc)   # let caller decide what to do
+                finally:
+                    # stop this one-shot stream after first answer
+                    stop()
+
+        stop = self.listen_to_collection(
+            "wrong_classifications",
+            on_modified=_on_mod,
+            filters=[("event_id", "==", event_id)]
+        )
+        return stop
