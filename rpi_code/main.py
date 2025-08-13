@@ -6,8 +6,17 @@ import traceback
 from laser_sensor import LaserSensor
 from firebase_handler import FirebaseHandler
 
+# Constants
+CLASSIFICATION_THRESHOLD = 0.8
+TIME_OUT_USER_ANSWER = 30
+
+# global variables
+user_answered = False
+user_choice = None
+
 def main():
     try:
+        global user_answered, user_choice
         firebase_handler = FirebaseHandler()
         #sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         camera = CameraManager()
@@ -25,18 +34,61 @@ def main():
             print("New item detected!")
             image = camera.capture_image()
             predicted_label, confidence = classifier.waste_classification(image)
+            real_predicted_label = predicted_label
+            if predicted_label not in ["Plastic", "Glass", "Metal"]:
+                predicted_label = "Other"
             print("Predicted waste type:", predicted_label)
             print("Predicted score:", confidence)
 
-            if predicted_label == "Plastic":
-                waste_type = WasteType.PLASTIC
-            elif predicted_label == "Glass":
-                waste_type = WasteType.GLASS
-            elif predicted_label == "Metal":
-                waste_type = WasteType.METAL
+            if confidence > CLASSIFICATION_THRESHOLD and predicted_label != "Other":
+                if predicted_label == "Plastic":
+                    waste_type = WasteType.PLASTIC
+                elif predicted_label == "Glass":
+                    waste_type = WasteType.GLASS
+                elif predicted_label == "Metal":
+                    waste_type = WasteType.METAL
             else:
                 waste_type = WasteType.OTHER
+                image_drive_link = camera.upload_image_to_drive(bin_id, real_predicted_label, confidence)
+                wrong_event_id = firebase_handler.log_wrong_classification(
+                    bin_id=bin_id,
+                    real_waste_type=real_predicted_label,
+                    confidence=confidence,
+                    image_drive_url=image_drive_link
+                )
+                user_answered = False
+                user_choice = None
 
+                # Start a focused listener for THIS item only
+                def _on_answered(doc):
+                    global user_answered, user_choice
+                    data = doc.to_dict() or {}
+                    user_choice = data.get("user_classified_type")
+                    user_answered = True
+                    print(f"User answered: {user_choice}")
+
+                stop_listener = firebase_handler.listen_for_wrong_classification_answer(
+                    wrong_event_id, on_answered=_on_answered
+                )
+
+                # Wait (with timeout) for the user's answer
+                start_wait = time.time()
+                try:
+                    while not user_answered and time.time() - start_wait < TIME_OUT_USER_ANSWER:
+                        time.sleep(0.1)
+                finally:
+                    # Make sure we always stop the stream
+                    try:
+                        stop_listener()
+                    except Exception:
+                        pass
+
+                # If the user answered in time, override waste_type
+                if user_answered:
+                    waste_type = WasteType[user_choice.upper()]
+                else:
+                    print("No user answer within timeout; keeping OTHER")
+            
             #print(f"Sorting waste of type: {predicted_label}")
             #sorter.sort_waste(waste_type)
 

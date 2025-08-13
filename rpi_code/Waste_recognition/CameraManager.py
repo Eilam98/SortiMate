@@ -44,8 +44,10 @@ class CameraManager:
         # Use tempfile to store image just for upload
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
             image.save(tmp_file.name)
-            self.drive_manager.upload_image(tmp_file.name)
+            image_drive_link = self.drive_manager.upload_image(tmp_file.name)
             print(f"Uploaded {filename} to Google Drive")
+        
+        return image_drive_link
 
     def __del__(self):
         # Stop the camera preview before exiting

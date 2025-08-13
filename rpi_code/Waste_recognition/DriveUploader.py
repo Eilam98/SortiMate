@@ -44,6 +44,19 @@ class DriveUploader:
         file.SetContentFile(local_path)
         file.Upload()
 
+        # Refresh metadata to get link fields
+        try:
+            file.FetchMetadata(fields="id,webViewLink,webContentLink,alternateLink")
+        except Exception:
+            # older PyDrive sometimes needs a full fetch
+            file.FetchMetadata()
+
+        file_id = file["id"]
+        # Prefer webViewLink when available; otherwise use a standard view URL
+        link = file.get("webViewLink") or file.get("alternateLink") or f"https://drive.google.com/file/d/{file_id}/view"
+
         print(f"Uploaded: {local_path}")
-        print(f"File link: https://drive.google.com/file/d/{file['id']}/view")
-        return file["id"]
+        print(f"File ID: {file_id}")
+        print(f"File link: {link}")
+
+        return link
