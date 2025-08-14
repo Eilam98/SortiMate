@@ -5,6 +5,7 @@ from picamera2 import Picamera2
 from Waste_recognition import DriveUploader
 import tempfile
 
+
 class CameraManager:
     def __init__(self):
         # Initialize and configure for still capture
@@ -23,7 +24,7 @@ class CameraManager:
 
     def capture_image(self):
         time.sleep(0.2)
-        frame_bgr = self.picam2.capture_array("main") 
+        frame_bgr = self.picam2.capture_array("main")
         frame_rgb = frame_bgr[..., ::-1]
 
         im = Image.fromarray(frame_rgb)
@@ -31,7 +32,6 @@ class CameraManager:
 
         return frame_rgb
 
-    #hey
     def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
         image_path = os.path.join(self.images_dir, "current_image.jpg")
         if not os.path.exists(image_path):
@@ -55,6 +55,7 @@ class CameraManager:
             print(f"Uploaded {filename} to Cloudinary")
 
         return image_url
+
     # def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
     #     # Load the image from RPI Camera2's memory
     #     image_path = os.path.join(self.images_dir, "current_image.jpg")
