@@ -50,7 +50,7 @@ def main():
                     waste_type = WasteType.METAL
             else:
                 waste_type = WasteType.OTHER
-                image_drive_link = camera.upload_image_to_drive(bin_id, real_predicted_label, confidence)
+                image_drive_link = camera.upload_image_to_cloudinary(bin_id, real_predicted_label, confidence)
                 wrong_event_id = firebase_handler.log_wrong_classification(
                     bin_id=bin_id,
                     real_waste_type=real_predicted_label,

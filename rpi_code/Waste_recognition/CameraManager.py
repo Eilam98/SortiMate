@@ -32,7 +32,7 @@ class CameraManager:
 
         return frame_rgb
 
-    def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
+    def upload_image_to_cloudinary(self, bin_id, predicted_label, confidence, timestamp=time.time()):
         image_path = os.path.join(self.images_dir, "current_image.jpg")
         if not os.path.exists(image_path):
             print("No image found to upload.")
@@ -55,24 +55,6 @@ class CameraManager:
             print(f"Uploaded {filename} to Cloudinary")
 
         return image_url
-
-    # def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
-    #     # Load the image from RPI Camera2's memory
-    #     image_path = os.path.join(self.images_dir, "current_image.jpg")
-    #     if not os.path.exists(image_path):
-    #         print("No image found to upload.")
-    #         return
-    #
-    #     image = Image.open(image_path)
-    #     filename = f"{bin_id}_{predicted_label}_{confidence}_{timestamp}.jpg"
-    #
-    #     # Use tempfile to store image just for upload
-    #     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
-    #         image.save(tmp_file.name)
-    #         image_drive_link = self.drive_manager.upload_image(tmp_file.name)
-    #         print(f"Uploaded {filename} to Google Drive")
-    #
-    #     return image_drive_link
 
     def __del__(self):
         # Stop the camera preview before exiting
