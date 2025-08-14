@@ -31,6 +31,7 @@ class CameraManager:
 
         return frame_rgb
 
+    #hey
     def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
         image_path = os.path.join(self.images_dir, "current_image.jpg")
         if not os.path.exists(image_path):
