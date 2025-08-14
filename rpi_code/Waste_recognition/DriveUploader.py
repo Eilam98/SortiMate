@@ -19,10 +19,10 @@ class DriveUploader:
 
     def upload_image(self, local_path, label, bin_id, confidence, timestamp):
         file_name = f"{bin_id}_{label}_{confidence}_{timestamp}.jpg"
-        if label not in ["Plastic", "Glass", "Paper"]:
-            folder_path = f"Home/Other"
+        if label in ["Plastic", "Glass", "Paper"]:
+            folder_path = label
         else:
-            folder_path = f"Home/{label}"
+            folder_path = "Other"
 
         result = cloudinary.uploader.upload(local_path, public_id=file_name, folder=folder_path, overwrite=True,
                                             resource_type="image")
