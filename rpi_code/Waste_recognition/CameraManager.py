@@ -32,22 +32,45 @@ class CameraManager:
         return frame_rgb
 
     def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
-        # Load the image from RPI Camera2's memory
         image_path = os.path.join(self.images_dir, "current_image.jpg")
         if not os.path.exists(image_path):
             print("No image found to upload.")
-            return
+            return None
 
         image = Image.open(image_path)
         filename = f"{bin_id}_{predicted_label}_{confidence}_{timestamp}.jpg"
 
-        # Use tempfile to store image just for upload
+        # Use a temporary file for upload
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
             image.save(tmp_file.name)
-            image_drive_link = self.drive_manager.upload_image(tmp_file.name)
-            print(f"Uploaded {filename} to Google Drive")
-        
-        return image_drive_link
+            image_url = self.drive_manager.upload_image(
+                local_path=tmp_file.name,
+                label=predicted_label,
+                bin_id=bin_id,
+                confidence=confidence,
+                timestamp=timestamp
+            )
+
+            print(f"Uploaded {filename} to Cloudinary")
+
+        return image_url
+    # def upload_image_to_drive(self, bin_id, predicted_label, confidence, timestamp=time.time()):
+    #     # Load the image from RPI Camera2's memory
+    #     image_path = os.path.join(self.images_dir, "current_image.jpg")
+    #     if not os.path.exists(image_path):
+    #         print("No image found to upload.")
+    #         return
+    #
+    #     image = Image.open(image_path)
+    #     filename = f"{bin_id}_{predicted_label}_{confidence}_{timestamp}.jpg"
+    #
+    #     # Use tempfile to store image just for upload
+    #     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
+    #         image.save(tmp_file.name)
+    #         image_drive_link = self.drive_manager.upload_image(tmp_file.name)
+    #         print(f"Uploaded {filename} to Google Drive")
+    #
+    #     return image_drive_link
 
     def __del__(self):
         # Stop the camera preview before exiting
