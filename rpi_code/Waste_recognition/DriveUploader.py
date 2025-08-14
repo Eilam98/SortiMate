@@ -2,6 +2,7 @@ import cloudinary
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
 
+
 # api_sec = JF3xzVsAYuFbCBANno6CApSxwck
 
 class DriveUploader:
@@ -16,16 +17,15 @@ class DriveUploader:
             secure=True
         )
 
-        self.base_folder = "/home"
-
     def upload_image(self, local_path, label, bin_id, confidence, timestamp):
         file_name = f"{bin_id}_{label}_{confidence}_{timestamp}.jpg"
         if label not in ["Plastic", "Glass", "Paper"]:
-            public_id = f"Home/Other/{file_name}"
+            folder_path = f"Home/Other"
         else:
-            public_id = f"Home/{label}/{file_name}"
+            folder_path = f"Home/{label}"
 
-        result = cloudinary.uploader.upload(local_path, public_id=public_id, overwrite=True, resource_type="image")
+        result = cloudinary.uploader.upload(local_path, public_id=file_name, folder=folder_path, overwrite=True,
+                                            resource_type="image")
 
         return result["secure_url"]
 
