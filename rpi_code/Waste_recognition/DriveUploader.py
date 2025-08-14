@@ -19,9 +19,12 @@ class DriveUploader:
 
     def upload_image(self, local_path, label, bin_id, confidence, timestamp):
         file_name = f"{bin_id}_{label}_{confidence}_{timestamp}.jpg"
-        pubilc_id = f"home/{label}/{file_name}"
+        if label not in ["Plastic", "Glass", "Paper"]:
+            public_id = f"home/Other/{file_name}"
+        else:
+            public_id = f"home/{label}/{file_name}"
 
-        result = cloudinary.uploader.upload(local_path, public_id=pubilc_id, overwrite=True, resource_type="image")
+        result = cloudinary.uploader.upload(local_path, public_id=public_id, overwrite=True, resource_type="image")
 
         return result["secure_url"]
 
