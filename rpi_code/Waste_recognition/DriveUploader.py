@@ -23,7 +23,7 @@ class DriveUploader:
         self.gauth.LoadClientConfigFile(self.client_secrets_path)
 
         # First time: opens browser for login
-        self.gauth.LocalWebserverAuth()
+        self.gauth.CommandLineAuth()
 
         # Save credentials to avoid logging in every time
         self.gauth.SaveCredentialsFile(self.creds_path)

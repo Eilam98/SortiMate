@@ -2,7 +2,7 @@ import os
 import time
 from PIL import Image
 from picamera2 import Picamera2
-import DriveUploader
+from Waste_recognition import DriveUploader
 import tempfile
 
 class CameraManager:
