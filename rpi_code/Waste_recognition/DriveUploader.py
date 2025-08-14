@@ -8,7 +8,7 @@ from cloudinary.utils import cloudinary_url
 class DriveUploader:
     def __init__(self, cloud_name="da7yuq42o",
                  api_key="843711719953788",
-                 api_secret=""  # copy our API secret
+                 api_secret="JF3xzVsAYuFbCBANno6CApSxwck"  # copy our API secret
                  ):
         cloudinary.config(
             cloud_name=cloud_name,
