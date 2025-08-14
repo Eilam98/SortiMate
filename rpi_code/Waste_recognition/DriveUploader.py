@@ -18,7 +18,7 @@ class DriveUploader:
         )
 
     def upload_image(self, local_path, label, bin_id, confidence, timestamp):
-        file_name = f"{bin_id}_{label}_{confidence}_{timestamp}.jpg"
+        file_name = f"{bin_id}_{label}_{confidence}_{timestamp}"
         if label in ["Plastic", "Glass", "Paper"]:
             folder_path = label
         else:
