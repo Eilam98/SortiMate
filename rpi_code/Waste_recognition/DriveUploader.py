@@ -3,8 +3,6 @@ import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
 
 
-# api_sec = JF3xzVsAYuFbCBANno6CApSxwck
-
 class DriveUploader:
     def __init__(self, cloud_name="da7yuq42o",
                  api_key="843711719953788",
