@@ -14,23 +14,24 @@ TIME_OUT_USER_ANSWER = 30
 user_answered = False
 user_choice = None
 
+
 def main():
     try:
         global user_answered, user_choice
         firebase_handler = FirebaseHandler()
-        #sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
+        # sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         camera = CameraManager()
         classifier = WasteClassifier()
-        #laser_sensor = LaserSensor(laser_pin=23)
+        # laser_sensor = LaserSensor(laser_pin=23)
 
         bin_id = load_bin_id()
         print("Smart Recycling Bin initialized...")
         print("Waiting for object to enter the bin...")
 
         while True:
-            #while not laser_sensor.is_beam_broken():
+            # while not laser_sensor.is_beam_broken():
             #    time.sleep(0.1)
-            
+
             print("New item detected!")
             image = camera.capture_image()
             predicted_label, confidence = classifier.waste_classification(image)
@@ -88,9 +89,9 @@ def main():
                     waste_type = WasteType[user_choice.upper()]
                 else:
                     print("No user answer within timeout; keeping OTHER")
-            
-            #print(f"Sorting waste of type: {predicted_label}")
-            #sorter.sort_waste(waste_type)
+
+            # print(f"Sorting waste of type: {predicted_label}")
+            # sorter.sort_waste(waste_type)
 
             try:
                 waste_event_id = firebase_handler.log_waste_event(
@@ -98,16 +99,16 @@ def main():
                     waste_type=waste_type.name,
                     confidence=confidence
                 )
-                print(f"Waste event logged with ID: {waste_event_id}") 
+                print(f"Waste event logged with ID: {waste_event_id}")
             except Exception as log_err:
                 print(f"Failed to log waste event: {log_err}")
 
             # Wait until beam is restored before detecting the next object
-            #while laser_sensor.is_beam_broken():
+            # while laser_sensor.is_beam_broken():
             #    time.sleep(0.1)
-            
+
             print("Item sorted. Waiting for the next item...")
-            break #TO DELETE
+            break  # TO DELETE
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -117,9 +118,10 @@ def main():
         traceback.print_exc()
 
     finally:
-        print("END") #TO DELETE
-        #sorter.cleanup()
-        #laser_sensor.cleanup()
+        print("END")  # TO DELETE
+        # sorter.cleanup()
+        # laser_sensor.cleanup()
+
 
 def load_bin_id(path="/home/pi/creds/bin_id.txt"):
     try:
