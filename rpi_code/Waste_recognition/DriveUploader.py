@@ -1,7 +1,5 @@
 import cloudinary
 import cloudinary.uploader
-# from cloudinary.utils import cloudinary_url
-
 
 class DriveUploader:
     def __init__(self, cloud_name="da7yuq42o",
