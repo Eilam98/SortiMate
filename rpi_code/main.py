@@ -22,7 +22,7 @@ def main():
     try:
         global user_answered, user_choice
         firebase_handler = FirebaseHandler()
-        # sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
+        sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         camera = CameraManager()
         classifier = WasteClassifier()
         # laser_sensor = LaserSensor(laser_pin=23)
@@ -33,7 +33,7 @@ def main():
         monitor = MonitorManager(
             window_size=(1920, 1080),
             display=":0.0",
-            monitor_index=1  # Explicitly set to HDMI-2
+            monitor_index=1  
         )
         monitor.show("default")
 
@@ -80,22 +80,19 @@ def main():
                 stop_listener = firebase_handler.listen_for_wrong_classification_answer(
                     wrong_event_id, on_answered=on_answered)
 
-                # Wait (with timeout) for the user's answer
+                
                 start_wait = time.time()
-                try:
+                try: # Wait (with timeout) for the user's answer
                     while not user_answered and time.time() - start_wait < TIME_OUT_USER_ANSWER:
                         time.sleep(0.1)
                 finally:
-                    # Make sure we always stop the stream
                     try:
                         stop_listener()
                     except Exception:
                         pass
 
-                # If the user answered in time, override waste_type and update Firebase
                 if user_answered:
                     waste_type = WasteType[user_choice.upper()]
-                    # Update the wrong_classification document with user's answer
                     try:
                         firebase_handler.update_wrong_classification_user_answer(
                             wrong_event_id, user_choice
@@ -108,9 +105,9 @@ def main():
         
             monitor.show(predicted_label)
             print(f"Sorting waste of type: {predicted_label}")
-            #sorter.sort_waste(waste_type)
+            sorter.sort_waste(waste_type)
 
-            time.sleep(3) # TO DELETE
+            # time.sleep(3) # TO DELETE
             monitor.show("summary")            
 
             try:
@@ -139,7 +136,7 @@ def main():
 
     finally:
         print("END")  # TO DELETE
-        # sorter.cleanup()
+        sorter.cleanup()
         # laser_sensor.cleanup()
         push_button.cleanup()
         monitor.stop()
