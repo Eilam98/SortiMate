@@ -16,11 +16,13 @@ TIME_OUT_USER_ANSWER = 30
 # global variables
 user_answered = False
 user_choice = None
-
+active_user_listener = None
+current_active_user_state = False
+monitor = None
 
 def main():
     try:
-        global user_answered, user_choice
+        global user_answered, user_choice, monitor
         firebase_handler = FirebaseHandler()
         sorter = SortingMechanism(rotation_pin=17, gate_pin=27)
         camera = CameraManager()
@@ -36,6 +38,11 @@ def main():
             monitor_index=1  
         )
         monitor.show("default")
+
+        # Set up active_user listener
+        active_user_listener = firebase_handler.listen_for_active_user_changes(
+            bin_id, on_active_user_changed
+        )
 
         print("Smart Recycling Bin initialized...")
 
@@ -65,6 +72,7 @@ def main():
                     waste_type = WasteType.METAL
             else:
                 # TO ADD: monitor for this case
+                monitor.show("low_confidence")
                 user_answered = False
                 user_choice = None
                 waste_type = WasteType.OTHER
@@ -125,7 +133,8 @@ def main():
             #    time.sleep(0.1)
 
             time.sleep(3)
-            monitor.show("default")
+            # Show appropriate monitor based on active_user state
+            update_monitor_display(monitor, "default")
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -136,6 +145,8 @@ def main():
 
     finally:
         print("END")  # TO DELETE
+        if active_user_listener:
+            active_user_listener()
         sorter.cleanup()
         # laser_sensor.cleanup()
         push_button.cleanup()
@@ -160,6 +171,20 @@ def on_answered(doc):
     user_choice = data.get("user_classified_type")
     user_answered = data.get("user_answered")
     print(f"User answered: {user_choice}")
+
+# Callback for active_user changes
+def on_active_user_changed(active_user):
+    global current_active_user_state
+    current_active_user_state = active_user
+    print(f"Active user state changed to: {active_user}")
+    monitor.check_and_update_active_user_state(active_user)
+
+def update_monitor_display(monitor, state):
+    """Update monitor display considering active_user state"""
+    if state == "default" and current_active_user_state:
+        monitor.show("active_session")
+    else:
+        monitor.show(state)
 
 
 if __name__ == "__main__":

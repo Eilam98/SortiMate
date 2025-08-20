@@ -37,6 +37,8 @@ class MonitorManager:
             "Metal":        os.path.join(self.IMG, "metal.png"),
             "Other":        os.path.join(self.IMG, "other.png"),
             "summary":      os.path.join(self.IMG, "summary.png"),
+            "active_session": os.path.join(self.IMG, "active_session.png"),
+            "low_confidence": os.path.join(self.IMG, "low_confidence.png"),
         }
 
         # load + scale each image/GIF once
@@ -44,6 +46,8 @@ class MonitorManager:
         for state, image_dir in self.images_dirs.items():
             img = pygame.image.load(image_dir)
             self.images[state] = pygame.transform.scale(img, window_size)
+        
+        self.current_state = "default"
 
     def show(self, state: str):
         """Immediately switch to and display the given state."""
@@ -52,7 +56,20 @@ class MonitorManager:
             raise ValueError(f"Unknown state: {state!r}")
         self.screen.blit(frame, (0, 0))
         pygame.display.flip()
+        self.current_state = state
 
     def stop(self):
         """Cleanup at program exit."""
         pygame.quit()
+    
+    def check_and_update_active_user_state(self, active_user):
+        """
+        Check if monitor should be updated based on active_user state.
+        Only updates if currently showing default/active_session states.
+        """
+        if self.current_state in ["default", "active_session"]:
+            new_state = "active_session" if active_user else "default"
+            if new_state != self.current_state:
+                self.show(new_state)
+                return True
+        return False

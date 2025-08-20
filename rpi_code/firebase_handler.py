@@ -176,3 +176,24 @@ class FirebaseHandler:
             filters=[("event_id", "==", event_id)]
         )
         return stop
+
+    def listen_for_active_user_changes(self, bin_id, on_active_user_changed):
+        """
+        Start a listener for active_user field changes in the bins collection.
+        Calls on_active_user_changed(active_user_bool) when the active_user field changes.
+        Returns a stop() function you must call to unsubscribe.
+        """
+        def _on_mod(doc):
+            data = doc.to_dict() or {}
+            active_user = data.get("active_user", False)
+            try:
+                on_active_user_changed(active_user)
+            except Exception as e:
+                print(f"Error in active_user_changed callback: {e}")
+
+        stop = self.listen_to_collection(
+            "bins",
+            on_modified=_on_mod,
+            filters=[("bin_id", "==", bin_id)]
+        )
+        return stop
