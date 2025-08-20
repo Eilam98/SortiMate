@@ -47,94 +47,100 @@ def main():
         print("Smart Recycling Bin initialized...")
 
         while True:
-            print("Waiting for object to enter the bin...")
-            # while not laser_sensor.is_beam_broken():
-            #    time.sleep(0.1)
-            while not push_button.is_button_pushed():
-                time.sleep(0.1)
-
-            monitor.show("classifying")
-            print("New item detected!")
-            image = camera.capture_image()
-            predicted_label, confidence = classifier.waste_classification(image)
-            real_predicted_label = predicted_label
-            if predicted_label not in ["Plastic", "Glass", "Metal"]:
-                predicted_label = "Other"
-            print("Predicted waste type:", predicted_label)
-            print("Predicted score:", confidence)
-
-            if confidence > CLASSIFICATION_THRESHOLD and predicted_label != "Other":
-                if predicted_label == "Plastic":
-                    waste_type = WasteType.PLASTIC
-                elif predicted_label == "Glass":
-                    waste_type = WasteType.GLASS
-                elif predicted_label == "Metal":
-                    waste_type = WasteType.METAL
-            else:
-                # TO ADD: monitor for this case
-                monitor.show("low_confidence")
-                user_answered = False
-                user_choice = None
-                waste_type = WasteType.OTHER
-                image_cloudinary_link = camera.upload_image_to_cloudinary(bin_id, real_predicted_label, confidence)
-                wrong_event_id = firebase_handler.log_wrong_classification(
-                    bin_id=bin_id,
-                    real_classified_waste_type=real_predicted_label,
-                    confidence=confidence,
-                    image_cloudinary_url=image_cloudinary_link,
-                    user_answered=user_answered
-                )
-
-                stop_listener = firebase_handler.listen_for_wrong_classification_answer(
-                    wrong_event_id, on_answered=on_answered)
-
-                
-                start_wait = time.time()
-                try: # Wait (with timeout) for the user's answer
-                    while not user_answered and time.time() - start_wait < TIME_OUT_USER_ANSWER:
-                        time.sleep(0.1)
-                finally:
-                    try:
-                        stop_listener()
-                    except Exception:
-                        pass
-
-                if user_answered:
-                    waste_type = WasteType[user_choice.upper()]
-                    try:
-                        firebase_handler.update_wrong_classification_user_answer(
-                            wrong_event_id, user_choice
-                        )
-                        print(f"Updated wrong_classification document {wrong_event_id} with user choice: {user_choice}")
-                    except Exception as update_err:
-                        print(f"Failed to update wrong_classification document: {update_err}")
-                else:
-                    print("No user answer within timeout; keeping OTHER")
-        
-            monitor.show(predicted_label)
-            print(f"Sorting waste of type: {predicted_label}")
-            sorter.sort_waste(waste_type)
-
-            # time.sleep(3) # TO DELETE
-            monitor.show("summary")            
-
             try:
-                waste_event_id = firebase_handler.log_waste_event(
-                    bin_id=bin_id,
-                    waste_type=waste_type.name,
-                    confidence=confidence
-                )
-                print(f"Waste event logged with ID: {waste_event_id}")
-            except Exception as log_err:
-                print(f"Failed to log waste event: {log_err}")
+                print("Waiting for object to enter the bin...")
+                # while not laser_sensor.is_beam_broken():
+                #    time.sleep(0.1)
+                while not push_button.is_button_pushed():
+                    time.sleep(0.1)
 
-            # Wait until beam is restored before detecting the next object
-            # while laser_sensor.is_beam_broken():
-            #    time.sleep(0.1)
+                monitor.show("classifying")
+                print("New item detected!")
+                image = camera.capture_image()
+                predicted_label, confidence = classifier.waste_classification(image)
+                real_predicted_label = predicted_label
+                if predicted_label not in ["Plastic", "Glass", "Metal"]:
+                    predicted_label = "Other"
+                print("Predicted waste type:", predicted_label)
+                print("Predicted score:", confidence)
 
-            time.sleep(3)
-            # Show appropriate monitor based on active_user state
-            update_monitor_display(monitor, "default")
+                if confidence > CLASSIFICATION_THRESHOLD and predicted_label != "Other":
+                    if predicted_label == "Plastic":
+                        waste_type = WasteType.PLASTIC
+                    elif predicted_label == "Glass":
+                        waste_type = WasteType.GLASS
+                    elif predicted_label == "Metal":
+                        waste_type = WasteType.METAL
+                else:
+                    # TO ADD: monitor for this case
+                    monitor.show("low_confidence")
+                    user_answered = False
+                    user_choice = None
+                    waste_type = WasteType.OTHER
+                    image_cloudinary_link = camera.upload_image_to_cloudinary(bin_id, real_predicted_label, confidence)
+                    wrong_event_id = firebase_handler.log_wrong_classification(
+                        bin_id=bin_id,
+                        real_classified_waste_type=real_predicted_label,
+                        confidence=confidence,
+                        image_cloudinary_url=image_cloudinary_link,
+                        user_answered=user_answered
+                    )
+
+                    stop_listener = firebase_handler.listen_for_wrong_classification_answer(
+                        wrong_event_id, on_answered=on_answered)
+
+                    
+                    start_wait = time.time()
+                    try: # Wait (with timeout) for the user's answer
+                        while not user_answered and time.time() - start_wait < TIME_OUT_USER_ANSWER:
+                            time.sleep(0.1)
+                    finally:
+                        try:
+                            stop_listener()
+                        except Exception:
+                            pass
+
+                    if user_answered:
+                        waste_type = WasteType[user_choice.upper()]
+                        try:
+                            firebase_handler.update_wrong_classification_user_answer(
+                                wrong_event_id, user_choice
+                            )
+                            print(f"Updated wrong_classification document {wrong_event_id} with user choice: {user_choice}")
+                        except Exception as update_err:
+                            print(f"Failed to update wrong_classification document: {update_err}")
+                    else:
+                        print("No user answer within timeout; keeping OTHER")
+            
+                monitor.show(predicted_label)
+                print(f"Sorting waste of type: {predicted_label}")
+                sorter.sort_waste(waste_type)
+
+                # time.sleep(3) # TO DELETE
+                monitor.show("summary")            
+
+                try:
+                    waste_event_id = firebase_handler.log_waste_event(
+                        bin_id=bin_id,
+                        waste_type=waste_type.name,
+                        confidence=confidence
+                    )
+                    print(f"Waste event logged with ID: {waste_event_id}")
+                except Exception as log_err:
+                    print(f"Failed to log waste event: {log_err}")
+
+                # Wait until beam is restored before detecting the next object
+                # while laser_sensor.is_beam_broken():
+                #    time.sleep(0.1)
+
+                time.sleep(3)
+                monitor.current_monitor_default(current_active_user_state, "default")
+                
+            except Exception as e:
+                print(f"Error in main loop iteration: {e}")
+                traceback.print_exc()
+                print("Continuing to next iteration...")
+                time.sleep(1)  # Brief pause before retrying
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -178,13 +184,6 @@ def on_active_user_changed(active_user):
     current_active_user_state = active_user
     print(f"Active user state changed to: {active_user}")
     monitor.check_and_update_active_user_state(active_user)
-
-def update_monitor_display(monitor, state):
-    """Update monitor display considering active_user state"""
-    if state == "default" and current_active_user_state:
-        monitor.show("active_session")
-    else:
-        monitor.show(state)
 
 
 if __name__ == "__main__":
