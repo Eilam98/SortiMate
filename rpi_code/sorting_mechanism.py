@@ -4,9 +4,10 @@ This module manages the coordination between two servo motors for waste sorting.
 """
 
 from enum import Enum
-from typing import Dict
 from servo_controller import ServoController
 import time
+
+GATE_OPEN_ANGLE = 0
 
 class WasteType(Enum):
     """Enumeration of possible waste types."""
@@ -27,14 +28,14 @@ class SortingMechanism:
         
         """
         self.rotation_servo = ServoController(rotation_pin, home_position=90)
-        self.gate_servo = ServoController(gate_pin, home_position=0)
+        self.gate_servo = ServoController(gate_pin, home_position=115)
         
         # Define angles for each bin position
-        self.bin_angles = { # TO FIX: angles and enum
-            WasteType.GLASS: 0,
-            WasteType.PLASTIC: 60,
-            WasteType.METAL: 120,
-            WasteType.OTHER: 180
+        self.bin_angles = { 
+            WasteType.GLASS: 30,
+            WasteType.PLASTIC: 90,
+            WasteType.METAL: 150,
+            WasteType.OTHER: 150 # TO FIX
         }
         
         # Initialize servos to home position
@@ -52,13 +53,12 @@ class SortingMechanism:
         target_angle = self.bin_angles[waste_type]
         self.rotation_servo.set_angle(target_angle)
         time.sleep(1)  # Wait for pipe to rotate
-        self.gate_servo.set_angle(150)  # Open gate
+        self.gate_servo.set_angle(GATE_OPEN_ANGLE) 
         time.sleep(1)  # Wait for waste to drop
         self.gate_servo.set_angle(self.gate_servo.home_position)
         self.rotation_servo.set_angle(self.rotation_servo.home_position)
     
     def cleanup(self) -> None:
         """Clean up GPIO resources for both servos."""
-        #TO ADD: self.rotation_servo.cleanup()
-        self.gate_servo.cleanup() 
         self.rotation_servo.cleanup()
+        self.gate_servo.cleanup() 

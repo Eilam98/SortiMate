@@ -1,0 +1,7 @@
+node_modules/
+__pycache__/
+myenv/
+.DS_Store/
+temporary_images/
+.idea/
+*.pyc
