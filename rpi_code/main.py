@@ -109,7 +109,7 @@ def main():
 
             # TO DELETE
             print("Item sorted. Waiting for the next item...")
-            input_char = input("Press 'q' to quit")
+            input_char = input("Press 'q' to quit: ")
             if input_char == 'q':
                 print("Quitting...")
                 break
@@ -144,7 +144,7 @@ def on_answered(doc):
     global user_answered, user_choice
     data = doc.to_dict() or {}
     user_choice = data.get("user_classified_type")
-    user_answered = True
+    user_answered = data.get("user_answered")
     print(f"User answered: {user_choice}")
 
 

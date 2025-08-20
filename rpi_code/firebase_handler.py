@@ -118,7 +118,7 @@ class FirebaseHandler:
             for f in filters:
                 if len(f) == 3:
                     field, op, value = f
-                    query = query.where(field, op, value)
+                    query = query.where(filter=(field, op, value))
 
         def _on_snapshot(col_snapshot, changes, read_time):
             # Robust: if callbacks error, don't kill the stream
