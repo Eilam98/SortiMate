@@ -6,6 +6,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore as admin_fs
 from google.api_core import retry as g_retry
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+from google.cloud.firestore_v1 import FieldFilter
 
 # ---- Helper retry (handles transient network hiccups on the RPi) ----
 _WRITE_RETRY = g_retry.Retry(
@@ -118,7 +119,8 @@ class FirebaseHandler:
             for f in filters:
                 if len(f) == 3:
                     field, op, value = f
-                    query = query.where(filter=(field, op, value))
+                    filter_obj = FieldFilter(field, op, value)
+                    query = query.where(filter=filter_obj)
 
         def _on_snapshot(col_snapshot, changes, read_time):
             # Robust: if callbacks error, don't kill the stream
