@@ -19,6 +19,8 @@ user_choice = None
 active_user_listener = None
 current_active_user_state = False
 monitor = None
+active_user_changed = False  
+new_active_user_state = False
 
 def main():
     try:
@@ -52,6 +54,7 @@ def main():
                 # while not laser_sensor.is_beam_broken():
                 #    time.sleep(0.1)
                 while not push_button.is_button_pushed():
+                    check_and_update_active_user()
                     time.sleep(0.1)
 
                 monitor.show("classifying")
@@ -180,11 +183,22 @@ def on_answered(doc):
 
 # Callback for active_user changes
 def on_active_user_changed(active_user):
-    global current_active_user_state
-    current_active_user_state = active_user
+    global active_user_changed, new_active_user_state
+    new_active_user_state = active_user
+    active_user_changed = True
     print(f"Active user state changed to: {active_user}")
-    monitor.check_and_update_active_user_state(active_user)
 
+def check_and_update_active_user():
+    """Check if active_user state changed and update monitor if needed"""
+    global active_user_changed, new_active_user_state, current_active_user_state
+    
+    if active_user_changed:
+        current_active_user_state = new_active_user_state
+        if monitor:
+            updated = monitor.check_and_update_active_user_state(new_active_user_state)
+            if updated:
+                print(f"Monitor automatically updated due to active_user change")
+        active_user_changed = False
 
 if __name__ == "__main__":
     main()
