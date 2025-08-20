@@ -74,9 +74,9 @@ class MonitorManager:
                 return True
         return False
 
-    def current_monitor_default(self, state, current_active_user_state):
+    def current_monitor_default(self, current_active_user_state):
         """Update monitor display considering active_user state"""
-        if state == "default" and current_active_user_state:
+        if current_active_user_state:
             self.show("active_session")
         else:
-            self.show(state)
+            self.show("default")

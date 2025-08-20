@@ -137,7 +137,7 @@ def main():
                 #    time.sleep(0.1)
 
                 time.sleep(3)
-                monitor.current_monitor_default(current_active_user_state, "default")
+                monitor.current_monitor_default(current_active_user_state)
                 
             except Exception as e:
                 print(f"Error in main loop iteration: {e}")
@@ -183,10 +183,12 @@ def on_answered(doc):
 
 # Callback for active_user changes
 def on_active_user_changed(active_user):
-    global active_user_changed, new_active_user_state
-    new_active_user_state = active_user
-    active_user_changed = True
-    print(f"Active user state changed to: {active_user}")
+    global active_user_changed, new_active_user_state, current_active_user_state
+    
+    if active_user != current_active_user_state:
+        new_active_user_state = active_user
+        active_user_changed = True
+        print(f"Active user state changed to: {active_user}")
 
 def check_and_update_active_user():
     """Check if active_user state changed and update monitor if needed"""
