@@ -6,6 +6,7 @@ from Waste_recognition.Classifier import WasteClassifier
 import traceback
 from laser_sensor import LaserSensor
 from firebase_handler import FirebaseHandler
+from monitor_manager import MonitorManager
 
 # Constants
 CLASSIFICATION_THRESHOLD = 0.8
@@ -27,19 +28,7 @@ def main():
 
         bin_id = load_bin_id()
 
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # get the directory where main.py lives
-        IMG  = os.path.join(BASE_DIR, "monitor_images")
-        image_dirs = {
-            "default":      os.path.join(IMG, "default.png"),
-            "classifying":  os.path.join(IMG, "classifying.png"),
-            "Plastic":      os.path.join(IMG, "plastic.png"),
-            "Glass":        os.path.join(IMG, "glass.png"),
-            "Metal":        os.path.join(IMG, "metal.png"),
-            "Other":        os.path.join(IMG, "other.png"),
-            "summary":      os.path.join(IMG, "summary.png"),
-        }
         monitor = MonitorManager(
-            images_dir=image_dirs,
             window_size=(1920, 1080),
             display=":0.0",
             monitor_index=1  # Explicitly set to HDMI-2
@@ -71,6 +60,7 @@ def main():
                 elif predicted_label == "Metal":
                     waste_type = WasteType.METAL
             else:
+                # TO ADD: monitor for this case
                 user_answered = False
                 user_choice = None
                 waste_type = WasteType.OTHER

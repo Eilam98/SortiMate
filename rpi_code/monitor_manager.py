@@ -8,8 +8,7 @@ class MonitorManager:
 
     def __init__(
         self,
-        images_dir: dict,
-        window_size: tuple = (800, 600),
+        window_size: tuple = (1920, 1080),
         display: str = ":0.0",
         monitor_index: int = 1,
     ):
@@ -28,9 +27,21 @@ class MonitorManager:
         self.screen = pygame.display.set_mode(window_size, flags=flags)
         pygame.display.set_caption("Recycling Bin Monitor")
 
+        self.BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # get the directory where main.py lives
+        self.IMG  = os.path.join(self.BASE_DIR, "monitor_images")
+        self.images_dirs = {
+            "default":      os.path.join(self.IMG, "default.png"),
+            "classifying":  os.path.join(self.IMG, "classifying.png"),
+            "Plastic":      os.path.join(self.IMG, "plastic.png"),
+            "Glass":        os.path.join(self.IMG, "glass.png"),
+            "Metal":        os.path.join(self.IMG, "metal.png"),
+            "Other":        os.path.join(self.IMG, "other.png"),
+            "summary":      os.path.join(self.IMG, "summary.png"),
+        }
+
         # load + scale each image/GIF once
         self.images = {}
-        for state, image_dir in images_dir.items():
+        for state, image_dir in self.images_dirs.items():
             img = pygame.image.load(image_dir)
             self.images[state] = pygame.transform.scale(img, window_size)
 
