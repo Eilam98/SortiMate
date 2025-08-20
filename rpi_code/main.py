@@ -38,9 +38,9 @@ def main():
         monitor.show("default")
 
         print("Smart Recycling Bin initialized...")
-        print("Waiting for object to enter the bin...")
 
         while True:
+            print("Waiting for object to enter the bin...")
             # while not laser_sensor.is_beam_broken():
             #    time.sleep(0.1)
             while not push_button.is_button_pushed():
@@ -107,13 +107,11 @@ def main():
                     print("No user answer within timeout; keeping OTHER")
         
             monitor.show(predicted_label)
-            # print(f"Sorting waste of type: {predicted_label}")
-            # sorter.sort_waste(waste_type)
+            print(f"Sorting waste of type: {predicted_label}")
+            #sorter.sort_waste(waste_type)
 
-            monitor.show("summary")
-            time.sleep(3)
-            monitor.show("default")
-            
+            time.sleep(3) # TO DELETE
+            monitor.show("summary")            
 
             try:
                 waste_event_id = firebase_handler.log_waste_event(
@@ -128,6 +126,9 @@ def main():
             # Wait until beam is restored before detecting the next object
             # while laser_sensor.is_beam_broken():
             #    time.sleep(0.1)
+
+            time.sleep(3)
+            monitor.show("default")
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
