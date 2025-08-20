@@ -21,6 +21,8 @@ class MonitorManager:
         """
         os.environ["DISPLAY"] = display
         os.environ["SDL_VIDEO_FULLSCREEN_DISPLAY"] = str(monitor_index)
+        # Additional environment variables to ensure proper display selection
+        os.environ["SDL_VIDEO_WINDOW_POS"] = "800,0"  # Position window on HDMI-2 (offset by HDMI-1 width)
         pygame.init()
         flags = pygame.FULLSCREEN | pygame.NOFRAME
         self.screen = pygame.display.set_mode(window_size, flags=flags)

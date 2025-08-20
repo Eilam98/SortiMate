@@ -23,7 +23,9 @@ def main():
         }
         monitor = MonitorManager(
             images_dir=image_dirs,
-            window_size=(1920, 1080)
+            window_size=(1920, 1080),
+            display=":0.0",
+            monitor_index=1  # Explicitly set to HDMI-2
         )
         monitor.show("default")
 
