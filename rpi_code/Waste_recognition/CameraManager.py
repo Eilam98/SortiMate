@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 from PIL import Image
 from picamera2 import Picamera2
 from Waste_recognition import CloudinaryUploader
@@ -32,7 +33,9 @@ class CameraManager:
 
         return frame_rgb
 
-    def upload_image_to_cloudinary(self, bin_id, predicted_label, confidence, timestamp=time.time()):
+    def upload_image_to_cloudinary(self, bin_id, predicted_label, confidence, timestamp=None):
+        if timestamp is None:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         image_path = os.path.join(self.images_dir, "current_image.jpg")
         if not os.path.exists(image_path):
             print("No image found to upload.")
