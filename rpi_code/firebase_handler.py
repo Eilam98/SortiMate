@@ -60,19 +60,33 @@ class FirebaseHandler:
         self.set_document("waste_events", event_id, event_data, merge=False)
         return event_id
 
-    def log_wrong_classification(self, bin_id, real_waste_type, confidence, image_drive_url):
+    def log_wrong_classification(self, bin_id, real_classified_waste_type, confidence, image_cloudinary_url, user_answered=False):
         event_id = str(uuid.uuid4())
         event_data = {
             "event_id": event_id,
             "bin_id": bin_id,
             "timestamp": SERVER_TIMESTAMP,
-            "model_classification_waste_type": real_waste_type,
+            "model_classification_waste_type": real_classified_waste_type,
             "confidence": confidence,
-            "image_drive_url": image_drive_url,
+            "image_cloudinary_url": image_cloudinary_url,
+            "user_answered": user_answered,
+            "user_classified_type": None,
             "reviewed": False
         }
-        self.set_document("wrong_classification", event_id, event_data, merge=False)
+        self.set_document("wrong_classifications", event_id, event_data, merge=False)
         return event_id
+
+    def update_wrong_classification_user_answer(self, event_id, user_classified_type):
+        """
+        Update a wrong_classification document when user provides the correct waste type.
+        Sets user_answered to True and stores the user's choice.
+        """
+        updates = {
+            "user_answered": True,
+            "user_classified_type": user_classified_type,
+            "timestamp_user_answer": SERVER_TIMESTAMP
+        }
+        self.set_document("wrong_classifications", event_id, updates, merge=True)
 
     def update_bin_status(self, bin_id, status):
         """

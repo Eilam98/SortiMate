@@ -2,7 +2,7 @@ import os
 import time
 from PIL import Image
 from picamera2 import Picamera2
-from Waste_recognition import DriveUploader
+from Waste_recognition import CloudinaryUploader
 import tempfile
 
 
@@ -16,7 +16,7 @@ class CameraManager:
         self.picam2.set_controls({"ScalerCrop": (820, 616, 1640, 1232)})
         self.picam2.start()
 
-        self.drive_manager = DriveUploader.DriveUploader()
+        self.cloudinary_manager = CloudinaryUploader.CloudinaryUploader()
 
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.images_dir = os.path.join(base_dir, "temporary_images")
@@ -44,7 +44,7 @@ class CameraManager:
         # Use a temporary file for upload
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as tmp_file:
             image.save(tmp_file.name)
-            image_url = self.drive_manager.upload_image(
+            image_url = self.cloudinary_manager.upload_image(
                 local_path=tmp_file.name,
                 label=predicted_label,
                 bin_id=bin_id,

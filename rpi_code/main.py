@@ -49,28 +49,20 @@ def main():
                 elif predicted_label == "Metal":
                     waste_type = WasteType.METAL
             else:
-                waste_type = WasteType.OTHER
-                image_drive_link = camera.upload_image_to_cloudinary(bin_id, real_predicted_label, confidence)
-                wrong_event_id = firebase_handler.log_wrong_classification(
-                    bin_id=bin_id,
-                    real_waste_type=real_predicted_label,
-                    confidence=confidence,
-                    image_drive_url=image_drive_link
-                )
                 user_answered = False
                 user_choice = None
-
-                # Start a focused listener for THIS item only
-                def _on_answered(doc):
-                    global user_answered, user_choice
-                    data = doc.to_dict() or {}
-                    user_choice = data.get("user_classified_type")
-                    user_answered = True
-                    print(f"User answered: {user_choice}")
+                waste_type = WasteType.OTHER
+                image_cloudinary_link = camera.upload_image_to_cloudinary(bin_id, real_predicted_label, confidence)
+                wrong_event_id = firebase_handler.log_wrong_classification(
+                    bin_id=bin_id,
+                    real_classified_waste_type=real_predicted_label,
+                    confidence=confidence,
+                    image_cloudinary_url=image_cloudinary_link,
+                    user_answered=user_answered
+                )
 
                 stop_listener = firebase_handler.listen_for_wrong_classification_answer(
-                    wrong_event_id, on_answered=_on_answered
-                )
+                    wrong_event_id, on_answered=on_answered)
 
                 # Wait (with timeout) for the user's answer
                 start_wait = time.time()
@@ -84,9 +76,17 @@ def main():
                     except Exception:
                         pass
 
-                # If the user answered in time, override waste_type
+                # If the user answered in time, override waste_type and update Firebase
                 if user_answered:
                     waste_type = WasteType[user_choice.upper()]
+                    # Update the wrong_classification document with user's answer
+                    try:
+                        firebase_handler.update_wrong_classification_user_answer(
+                            wrong_event_id, user_choice
+                        )
+                        print(f"Updated wrong_classification document {wrong_event_id} with user choice: {user_choice}")
+                    except Exception as update_err:
+                        print(f"Failed to update wrong_classification document: {update_err}")
                 else:
                     print("No user answer within timeout; keeping OTHER")
 
@@ -107,8 +107,13 @@ def main():
             # while laser_sensor.is_beam_broken():
             #    time.sleep(0.1)
 
+            # TO DELETE
             print("Item sorted. Waiting for the next item...")
-            break  # TO DELETE
+            input_char = input("Press 'q' to quit")
+            if input_char == 'q':
+                print("Quitting...")
+                break
+
 
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
@@ -133,6 +138,14 @@ def load_bin_id(path="/home/pi/creds/bin_id.txt"):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         traceback.print_exc()
+
+# Start a focused listener for THIS item only
+def on_answered(doc):
+    global user_answered, user_choice
+    data = doc.to_dict() or {}
+    user_choice = data.get("user_classified_type")
+    user_answered = True
+    print(f"User answered: {user_choice}")
 
 
 if __name__ == "__main__":

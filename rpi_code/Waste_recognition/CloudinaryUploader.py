@@ -1,7 +1,7 @@
 import cloudinary
 import cloudinary.uploader
 
-class DriveUploader:
+class CloudinaryUploader:
     def __init__(self, cloud_name="da7yuq42o",
                  api_key="843711719953788",
                  api_secret="JF3xzVsAYuFbCBANno6CApSxwck"  # copy our API secret
