@@ -7,6 +7,7 @@ import traceback
 from laser_sensor import LaserSensor
 from firebase_handler import FirebaseHandler
 from monitor_manager import MonitorManager
+from push_button import PushButton
 
 # Constants
 CLASSIFICATION_THRESHOLD = 0.8
@@ -25,6 +26,7 @@ def main():
         camera = CameraManager()
         classifier = WasteClassifier()
         # laser_sensor = LaserSensor(laser_pin=23)
+        push_button = PushButton()
 
         bin_id = load_bin_id()
 
@@ -41,6 +43,8 @@ def main():
         while True:
             # while not laser_sensor.is_beam_broken():
             #    time.sleep(0.1)
+            while not push_button.is_button_pushed():
+                time.sleep(0.1)
 
             monitor.show("classifying")
             print("New item detected!")
@@ -125,14 +129,6 @@ def main():
             # while laser_sensor.is_beam_broken():
             #    time.sleep(0.1)
 
-            # TO DELETE
-            print("Item sorted. Waiting for the next item...")
-            input_char = input("Press 'q' to quit: ")
-            if input_char == 'q':
-                print("Quitting...")
-                break
-
-
     except KeyboardInterrupt:
         print("\nProgram interrupted by user")
 
@@ -144,6 +140,7 @@ def main():
         print("END")  # TO DELETE
         # sorter.cleanup()
         # laser_sensor.cleanup()
+        push_button.cleanup()
         monitor.stop()
 
 
