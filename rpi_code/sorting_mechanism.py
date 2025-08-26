@@ -28,7 +28,7 @@ class SortingMechanism:
         
         """
         self.rotation_servo = ServoController(rotation_pin, home_position=90)
-        self.gate_servo = ServoController(gate_pin, home_position=115)
+        self.gate_servo = ServoController(gate_pin, home_position=110)
         
         # Define angles for each bin position
         self.bin_angles = { 
