@@ -75,8 +75,6 @@ def main():
                     elif predicted_label == "Metal":
                         waste_type = WasteType.METAL
                 else:
-                    # TO ADD: monitor for this case
-                    monitor.show("low_confidence")
                     user_answered = False
                     user_choice = None
                     waste_type = WasteType.OTHER
@@ -88,38 +86,37 @@ def main():
                         image_cloudinary_url=image_cloudinary_link,
                         user_answered=user_answered
                     )
+                    if current_active_user_state == True:
+                        monitor.show("low_confidence")
+                        stop_listener = firebase_handler.listen_for_wrong_classification_answer(
+                            wrong_event_id, on_answered=on_answered)
 
-                    stop_listener = firebase_handler.listen_for_wrong_classification_answer(
-                        wrong_event_id, on_answered=on_answered)
+                        start_wait = time.time()
+                        try: # Wait (with timeout) for the user's answer
+                            while not user_answered and time.time() - start_wait < TIME_OUT_USER_ANSWER:
+                                time.sleep(0.1)
+                        finally:
+                            try:
+                                stop_listener()
+                            except Exception:
+                                pass
 
-                    
-                    start_wait = time.time()
-                    try: # Wait (with timeout) for the user's answer
-                        while not user_answered and time.time() - start_wait < TIME_OUT_USER_ANSWER:
-                            time.sleep(0.1)
-                    finally:
-                        try:
-                            stop_listener()
-                        except Exception:
-                            pass
-
-                    if user_answered:
-                        waste_type = WasteType[user_choice.upper()]
-                        try:
-                            firebase_handler.update_wrong_classification_user_answer(
-                                wrong_event_id, user_choice
-                            )
-                            print(f"Updated wrong_classification document {wrong_event_id} with user choice: {user_choice}")
-                        except Exception as update_err:
-                            print(f"Failed to update wrong_classification document: {update_err}")
-                    else:
-                        print("No user answer within timeout; keeping OTHER")
+                        if user_answered:
+                            waste_type = WasteType[user_choice.upper()]
+                            try:
+                                firebase_handler.update_wrong_classification_user_answer(
+                                    wrong_event_id, user_choice
+                                )
+                                print(f"Updated wrong_classification document {wrong_event_id} with user choice: {user_choice}")
+                            except Exception as update_err:
+                                print(f"Failed to update wrong_classification document: {update_err}")
+                        else:
+                            print("No user answer within timeout; keeping OTHER")
             
                 monitor.show(predicted_label)
                 print(f"Sorting waste of type: {predicted_label}")
                 sorter.sort_waste(waste_type)
 
-                # time.sleep(3) # TO DELETE
                 monitor.show("summary")            
 
                 try:
@@ -153,7 +150,7 @@ def main():
         traceback.print_exc()
 
     finally:
-        print("END")  # TO DELETE
+        print("Program finished")
         if active_user_listener:
             active_user_listener()
         sorter.cleanup()
