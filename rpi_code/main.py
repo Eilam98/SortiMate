@@ -10,7 +10,7 @@ from monitor_manager import MonitorManager
 from push_button import PushButton
 
 # Constants
-CLASSIFICATION_THRESHOLD = 0.8
+CLASSIFICATION_THRESHOLD = 0.75
 TIME_OUT_USER_ANSWER = 30
 
 # global variables
