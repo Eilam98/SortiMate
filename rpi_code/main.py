@@ -78,6 +78,7 @@ def main():
                     user_answered = False
                     user_choice = None
                     waste_type = WasteType.OTHER
+                    predicted_label = "Other"
                     image_cloudinary_link = camera.upload_image_to_cloudinary(bin_id, real_predicted_label, confidence)
                     wrong_event_id = firebase_handler.log_wrong_classification(
                         bin_id=bin_id,
@@ -103,6 +104,7 @@ def main():
 
                         if user_answered:
                             waste_type = WasteType[user_choice.upper()]
+                            predicted_label = user_choice.capitalize()
                             try:
                                 firebase_handler.update_wrong_classification_user_answer(
                                     wrong_event_id, user_choice
