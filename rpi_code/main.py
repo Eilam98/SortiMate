@@ -50,6 +50,7 @@ def main():
 
         while True:
             try:
+                print("--------------------------------------")
                 print("Waiting for object to enter the bin...")
                 # while not laser_sensor.is_beam_broken():
                 #    time.sleep(0.1)
