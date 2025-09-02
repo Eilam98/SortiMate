@@ -87,6 +87,7 @@ def main():
                         image_cloudinary_url=image_cloudinary_link,
                         user_answered=user_answered
                     )
+                    print(f"Wrong classification logged with ID: {wrong_event_id}")
                     if current_active_user_state == True:
                         monitor.show("low_confidence")
                         stop_listener = firebase_handler.listen_for_wrong_classification_answer(
