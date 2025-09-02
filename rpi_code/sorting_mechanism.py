@@ -32,10 +32,10 @@ class SortingMechanism:
         
         # Define angles for each bin position
         self.bin_angles = { 
-            WasteType.GLASS: 30,
-            WasteType.PLASTIC: 90,
-            WasteType.METAL: 150,
-            WasteType.OTHER: 150 # TO FIX
+            WasteType.GLASS: 20,
+            WasteType.PLASTIC: 65,
+            WasteType.METAL: 100,
+            WasteType.OTHER: 145
         }
         
         # Initialize servos to home position
