@@ -1,0 +1,170 @@
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase/config';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, serverTimestamp } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import IntroductionPage from '../common/IntroductionPage';
+import { deepLinkHandler } from '../../utils/deepLinkHandler';
+import { trackConnection } from '../../utils/connectionTracker';
+
+const BinPage = () => {
+  const { binId } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [binExists, setBinExists] = useState(false);
+  const [user, setUser] = useState(null);
+
+  console.log('🎯 BinPage: Received binId from URL params:', binId);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      setUser(currentUser);
+      
+      if (currentUser) {
+        // User is authenticated - check if bin exists and redirect to recycling process
+        await checkBinAndRedirect();
+      } else {
+        // User is not authenticated - still check if bin exists
+        await checkBinExists();
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [binId]);
+
+  // Handle deep link detection
+  useEffect(() => {
+    // Check if this page was opened via deep link
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDeepLink = urlParams.get('deep_link');
+    
+    if (isDeepLink && binId) {
+      // This was opened via deep link - try to open app
+      deepLinkHandler.handleBinDeepLink(binId);
+    }
+  }, [binId]);
+
+  const checkBinExists = async () => {
+    try {
+      const db = getFirestore();
+      
+      // First try to find by document ID
+      const binRef = doc(db, 'bins', binId);
+      const binDoc = await getDoc(binRef);
+      
+      if (binDoc.exists()) {
+        setBinExists(true);
+        return;
+      }
+      
+      // If not found by document ID, search by bin_id field
+      const binsRef = collection(db, 'bins');
+      const q = query(binsRef, where('bin_id', '==', binId));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        setBinExists(true);
+      } else {
+        setBinExists(false);
+      }
+    } catch (error) {
+      console.error('Error checking bin:', error);
+      setBinExists(false);
+    }
+  };
+
+  const checkBinAndRedirect = async () => {
+    try {
+      const db = getFirestore();
+      
+      // First try to find by document ID
+      const binRef = doc(db, 'bins', binId);
+      const binDoc = await getDoc(binRef);
+      
+      if (binDoc.exists()) {
+        setBinExists(true);
+        // Redirect directly to the recycling session
+        navigate(`/recycling-session/${binId}`, { replace: true });
+        return;
+      }
+      
+      // If not found by document ID, search by bin_id field
+      const binsRef = collection(db, 'bins');
+      const q = query(binsRef, where('bin_id', '==', binId));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        setBinExists(true);
+        // Redirect directly to the recycling session
+        navigate(`/recycling-session/${binId}`, { replace: true });
+      } else {
+        setBinExists(false);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error checking bin:', error);
+      setBinExists(false);
+      setLoading(false);
+    }
+  };
+
+  const handleSignUpClick = () => {
+    // Store the bin ID for redirect after signup
+    sessionStorage.setItem('redirectBinId', binId);
+    navigate('/signup');
+  };
+
+  const handleSignInClick = () => {
+    // Store the bin ID for redirect after signin
+    sessionStorage.setItem('redirectBinId', binId);
+    navigate('/signin');
+  };
+
+  const handleGuestClick = () => {
+    // Store the bin ID for redirect after guest mode
+    console.log('🎯 BinPage: Storing binId in sessionStorage:', binId);
+    sessionStorage.setItem('redirectBinId', binId);
+    console.log('🎯 BinPage: Stored in sessionStorage:', sessionStorage.getItem('redirectBinId'));
+    navigate('/dashboard');
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!binExists) {
+    return (
+      <div className="error-container">
+        <h2>❌ Bin Not Found</h2>
+        <p>The bin you're looking for doesn't exist.</p>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => navigate('/')}
+        >
+          Go to Home
+        </button>
+      </div>
+    );
+  }
+
+  // Show introduction page for non-authenticated users
+  return (
+    <div>
+      <IntroductionPage
+        onSignUpClick={handleSignUpClick}
+        onSignInClick={handleSignInClick}
+        successMessage=""
+        customGuestHandler={handleGuestClick}
+        hideGuestButton={true}
+      />
+    </div>
+  );
+};
+
+export default BinPage; 
